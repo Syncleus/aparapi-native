@@ -39,6 +39,11 @@ configure
 depcomp
 install-sh
 missing
+compile
+config.guess
+config.sub
+libtool
+ltmain.sh
 
 # intermediate files
 Makefile
@@ -47,4 +52,6 @@ config.status
 .deps/
 .dirstamp
 *.o
+*.lo
+.libs/
 
