@@ -30,3 +30,14 @@ hs_err_pid*
 **/nbproject/
 
 *.iml
+
+## generated autoconf files
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+configure
+depcomp
+install-sh
+missing
+
