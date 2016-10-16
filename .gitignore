@@ -54,4 +54,4 @@ config.status
 *.o
 *.lo
 .libs/
-
+libaparapi.la
