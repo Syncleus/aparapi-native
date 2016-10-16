@@ -40,3 +40,11 @@ depcomp
 install-sh
 missing
 
+# intermediate files
+Makefile
+config.log
+config.status
+.deps/
+.dirstamp
+*.o
+
