@@ -31,20 +31,28 @@ hs_err_pid*
 
 *.iml
 
-## generated autoconf files
+# autotools
 Makefile.in
 aclocal.m4
 autom4te.cache/
-compile
 configure
 depcomp
 install-sh
 missing
-.deps/
+compile
+config.guess
+config.sub
+libtool
+ltmain.sh
+conf*/
+
+# intermediate files
 Makefile
-Makefile.am
 config.log
 config.status
-configure.ac
-runKernel/
-
+.deps/
+.dirstamp
+*.o
+*.lo
+.libs/
+libaparapi.la
