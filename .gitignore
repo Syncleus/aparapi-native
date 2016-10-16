@@ -40,4 +40,11 @@ configure
 depcomp
 install-sh
 missing
+.deps/
+Makefile
+Makefile.am
+config.log
+config.status
+configure.ac
+runKernel/
 
