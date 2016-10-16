@@ -41,7 +41,7 @@
 
 
 #include "Common.h"
-#include "com_amd_aparapi_internal_jni_KernelRunnerJNI.h"
+#include "com_syncleus_aparapi_internal_jni_KernelRunnerJNI.h"
 #include "CLException.h"
 #include "Range.h"
 #include "KernelArg.h"

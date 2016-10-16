@@ -62,14 +62,14 @@ class NameToBytes{
 NameToBytes *head = NULL;
 
 /*
- * Class:     com_amd_aparapi_OpenCLJNI
+ * Class:     com_syncleus_aparapi_OpenCLJNI
  * Method:    getClassBytes
  * Signature: (Ljava/lang/String;)V
  */
 #ifdef __cplusplus
 extern "C" {
 #endif
-   JNIEXPORT jbyteArray JNICALL Java_com_amd_aparapi_OpenCLJNI_getBytes (JNIEnv *jenv, jobject instance, jstring className){
+   JNIEXPORT jbyteArray JNICALL Java_com_syncleus_aparapi_OpenCLJNI_getBytes (JNIEnv *jenv, jobject instance, jstring className){
       jbyteArray bytes = NULL;
       const char *nameChars = jenv->GetStringUTFChars(className, NULL);
       fprintf(stdout, "inside getBytes(\"%s\")\n", nameChars);

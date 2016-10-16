@@ -5,7 +5,7 @@
 #include "Common.h"
 #include "KernelArg.h"
 #include "ProfileInfo.h"
-#include "com_amd_aparapi_internal_jni_KernelRunnerJNI.h"
+#include "com_syncleus_aparapi_internal_jni_KernelRunnerJNI.h"
 #include "Config.h"
 
 class JNIContext {
@@ -50,14 +50,14 @@ public:
 
    jboolean isUsingGPU(){
       //I'm pretty sure that this is equivalend to:
-      //return flags & com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU;
-      return((flags&com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)==com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU?JNI_TRUE:JNI_FALSE);
+      //return flags & com_syncleus_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU;
+      return((flags&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)==com_syncleus_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU?JNI_TRUE:JNI_FALSE);
    }
 
    jboolean isUsingACC(){
       //I'm pretty sure that this is equivalend to:
-      //return flags & com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC;
-      return((flags&com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC)==com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC?JNI_TRUE:JNI_FALSE);
+      //return flags & com_syncleus_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC;
+      return((flags&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC)==com_syncleus_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC?JNI_TRUE:JNI_FALSE);
    }
 
    ~JNIContext(){

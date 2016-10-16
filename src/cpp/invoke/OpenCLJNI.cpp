@@ -47,7 +47,7 @@
 #include "JavaArgs.h"
 #include <iostream>
 
-#include "com_amd_aparapi_internal_jni_OpenCLJNI.h"
+#include "com_syncleus_aparapi_internal_jni_OpenCLJNI.h"
 
 
 jobject OpenCLDevice::getPlatformInstance(JNIEnv *jenv, jobject deviceInstance){ 
