@@ -6,6 +6,7 @@ First consider editing the properties in build.properties
 -->
 <project name="com.amd.aparapi.jni" default="build" basedir=".">
 
+   <property name="amd.app.sdk.dir" value="/opt/AMDAPP/"/>
    <!-- 
    DO NOT EDIT BELOW THIS LINE 
    -->
@@ -539,7 +540,7 @@ First consider editing the properties in build.properties
 
    <target name="javah">
       <mkdir dir="include" />
-      <javah classpath="..\com.amd.aparapi\classes" destdir="include" force="true">
+      <javah classpath="java\target\classes" destdir="include" force="true">
          <class name="com.amd.aparapi.internal.jni.ConfigJNI" />
          <class name="com.amd.aparapi.internal.jni.KernelArgJNI" />
          <class name="com.amd.aparapi.internal.jni.KernelRunnerJNI" />
