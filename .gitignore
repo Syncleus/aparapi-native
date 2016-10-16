@@ -44,6 +44,7 @@ config.guess
 config.sub
 libtool
 ltmain.sh
+conf*/
 
 # intermediate files
 Makefile
