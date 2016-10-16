@@ -553,7 +553,7 @@ bool isKernel(char *_className, ByteBuffer *_byteBuffer){
       ClassConstantPoolEntry *superClassConstantPoolEntry = (ClassConstantPoolEntry*)constantPool[superClassConstantPoolIndex];
       UTF8ConstantPoolEntry *superClassUTF8ConstantPoolEntry = (UTF8ConstantPoolEntry*)constantPool[superClassConstantPoolEntry->getNameIndex()];
 
-      isAKernel= !strcmp((char *)(superClassUTF8ConstantPoolEntry->getUTF8Bytes()),"com/amd/aparapi/Kernel");
+      isAKernel= !strcmp((char *)(superClassUTF8ConstantPoolEntry->getUTF8Bytes()),"com/syncleus/aparapi/Kernel");
 
 #ifdef SHOW
       fprintf(stdout, "Class name at super index is \"%s\"\n", superClassUTF8ConstantPoolEntry->getUTF8Bytes());

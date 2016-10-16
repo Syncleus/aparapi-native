@@ -44,10 +44,10 @@
 #include "CLException.h"
 #define JavaLangPackage(name) "java/lang/" name
 #define JavaUtilPackage(name) "java/util/" name
-#define AparapiPackage(name) "com/amd/aparapi/" name
-#define AparapiDevicePackage(name) "com/amd/aparapi/device/" name
-#define AparapiOpenCLPackage(name) "com/amd/aparapi/internal/opencl/" name
-#define AparapiUtilPackage(name) "com/amd/aparapi/internal/util/" name
+#define AparapiPackage(name) "com/syncleus/aparapi/" name
+#define AparapiDevicePackage(name) "com/syncleus/aparapi/device/" name
+#define AparapiOpenCLPackage(name) "com/syncleus/aparapi/internal/opencl/" name
+#define AparapiUtilPackage(name) "com/syncleus/aparapi/internal/util/" name
 
 #define ProfileInfoClass AparapiPackage("ProfileInfo")
 #define OpenCLKernelClass AparapiOpenCLPackage("OpenCLKernel")
