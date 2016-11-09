@@ -2,16 +2,16 @@
 #include "OpenCLJNI.h"
 #include "List.h"
 
-JNIContext::JNIContext(JNIEnv *jenv, jobject _kernelObject, jobject _openCLDeviceObject, jint _flags): 
+JNIContext::JNIContext(JNIEnv *jenv, jobject _kernelObject, jobject _openCLDeviceObject, jint _flags):
       kernelObject(jenv->NewGlobalRef(_kernelObject)),
-      kernelClass((jclass)jenv->NewGlobalRef(jenv->GetObjectClass(_kernelObject))), 
+      kernelClass((jclass)jenv->NewGlobalRef(jenv->GetObjectClass(_kernelObject))),
       openCLDeviceObject(jenv->NewGlobalRef(_openCLDeviceObject)),
       flags(_flags),
       profileBaseTime(0),
       passes(0),
       exec(NULL),
-      deviceType(((flags&com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)==com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)?CL_DEVICE_TYPE_GPU:CL_DEVICE_TYPE_CPU),
-      profileFile(NULL), 
+      deviceType(((flags&com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)==com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)?CL_DEVICE_TYPE_GPU:CL_DEVICE_TYPE_CPU),
+      profileFile(NULL),
       valid(JNI_FALSE){
    if (flags&com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC)
       deviceType = CL_DEVICE_TYPE_ACCELERATOR;
@@ -25,7 +25,7 @@ JNIContext::JNIContext(JNIEnv *jenv, jobject _kernelObject, jobject _openCLDevic
 
    cl_context_properties cps[3] = { CL_CONTEXT_PLATFORM, (cl_context_properties)platformId, 0 };
    cl_context_properties* cprops = (NULL == platformId) ? NULL : cps;
-   context = clCreateContextFromType( cprops, returnedDeviceType, NULL, NULL, &status); 
+   context = clCreateContext( cprops, 1, &deviceId, NULL, NULL, &status);
    CLException::checkCLError(status, "clCreateContextFromType()");
    if (status == CL_SUCCESS){
       valid = JNI_TRUE;
@@ -97,7 +97,7 @@ void JNIContext::dispose(JNIEnv *jenv, Config* config) {
                      arg->aparapiBuffer->mem = (cl_mem)0;
                   }
                   if (arg->aparapiBuffer->javaObject != NULL)  {
-                     jenv->DeleteWeakGlobalRef((jweak) arg->aparapiBuffer->javaObject); 
+                     jenv->DeleteWeakGlobalRef((jweak) arg->aparapiBuffer->javaObject);
                   }
                   delete arg->aparapiBuffer;
                   arg->aparapiBuffer = NULL;
@@ -128,15 +128,15 @@ void JNIContext::dispose(JNIEnv *jenv, Config* config) {
          }
          delete[] readEventArgs; readEventArgs=0;
          delete[] writeEventArgs; writeEventArgs=0;
-      } 
+      }
    }
    if (config->isTrackingOpenCLResources()){
       fprintf(stderr, "after dispose{ \n");
       commandQueueList.report(stderr);
-      memList.report(stderr); 
-      readEventList.report(stderr); 
-      executeEventList.report(stderr); 
-      writeEventList.report(stderr); 
+      memList.report(stderr);
+      readEventList.report(stderr);
+      executeEventList.report(stderr);
+      writeEventList.report(stderr);
       fprintf(stderr, "}\n");
    }
 }
@@ -149,4 +149,3 @@ void JNIContext::unpinAll(JNIEnv* jenv) {
       }
    }
 }
-

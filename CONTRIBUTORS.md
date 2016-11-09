@@ -1,6 +1,7 @@
 # Contributors
 
 * Jeffrey Phillips Freeman <jeffrey.freeman@syncleus.com>
+* Florian Roesler <florian.roesler@wooga.net>
 * Witold Bolt 
 * Kenneth Skovhede
 * Ryan LaMothe

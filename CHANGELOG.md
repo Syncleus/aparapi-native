@@ -1,5 +1,9 @@
 # Aparapi jni Change Log
 
+## 1.2.0
+
+* Fixed the context to a single device instead of all devices of a specific device type. creating a context per type breaks compilation on dopencl.
+
 ## 1.1.2
 
 * Fixed a bug whereby the kernel was compiled twice.
