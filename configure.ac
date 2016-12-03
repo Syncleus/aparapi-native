@@ -1,4 +1,4 @@
-AC_INIT([libaparapi], [1.1.0], [jeffrey.freeman@syncleus.com])
+AC_INIT([libaparapi], [1.1.1], [jeffrey.freeman@syncleus.com])
 AC_ENABLE_SHARED(yes)
 AC_ENABLE_STATIC(no)
 LT_INIT
