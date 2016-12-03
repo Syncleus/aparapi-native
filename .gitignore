@@ -28,6 +28,7 @@ hs_err_pid*
 **/dist/
 **/include/
 **/nbproject/
+**/.idea/
 
 *.iml
 

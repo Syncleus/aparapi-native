@@ -44,10 +44,10 @@
 #include "CLException.h"
 #define JavaLangPackage(name) "java/lang/" name
 #define JavaUtilPackage(name) "java/util/" name
-#define AparapiPackage(name) "com/aparapi/aparapi/" name
-#define AparapiDevicePackage(name) "com/aparapi/aparapi/device/" name
-#define AparapiOpenCLPackage(name) "com/aparapi/aparapi/internal/opencl/" name
-#define AparapiUtilPackage(name) "com/aparapi/aparapi/internal/util/" name
+#define AparapiPackage(name) "com/aparapi/" name
+#define AparapiDevicePackage(name) "com/aparapi/device/" name
+#define AparapiOpenCLPackage(name) "com/aparapi/internal/opencl/" name
+#define AparapiUtilPackage(name) "com/aparapi/internal/util/" name
 
 #define ProfileInfoClass AparapiPackage("ProfileInfo")
 #define OpenCLKernelClass AparapiOpenCLPackage("OpenCLKernel")
