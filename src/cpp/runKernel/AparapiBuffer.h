@@ -40,7 +40,7 @@
 #define APARAPIBUFFER_H
 #include "Common.h"
 #include "ProfileInfo.h"
-#include "com_syncleus_aparapi_internal_jni_KernelRunnerJNI.h"
+#include "com_aparapi_internal_jni_KernelRunnerJNI.h"
 
 class KernelArg;
 
@@ -49,25 +49,25 @@ class AparapiBuffer{
 private:
 
    static int isFloat(int type){
-      return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_FLOAT);
+      return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_FLOAT);
    }
    static int isLong(int type){
-      return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_LONG);
+      return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_LONG);
    }
    static int isInt(int type){
-      return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_INT);
+      return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_INT);
    }
    static int isDouble(int type){
-      return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_DOUBLE);
+      return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_DOUBLE);
    }
    static int isBoolean(int type){
-      return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_BOOLEAN);
+      return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_BOOLEAN);
    }
    static int isByte(int type){
-      return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_BYTE);
+      return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_BYTE);
    }
    static int isShort(int type){
-      return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_SHORT);
+      return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_SHORT);
    }
 
    void buildBuffer(void* _data, cl_uint* _dims, cl_uint _numDims, long _lengthInBytes, jobject _javaObject);

@@ -6,7 +6,7 @@
 #include "JNIHelper.h"
 #include "ArrayBuffer.h"
 #include "AparapiBuffer.h"
-#include "com_syncleus_aparapi_internal_jni_KernelRunnerJNI.h"
+#include "com_aparapi_internal_jni_KernelRunnerJNI.h"
 #include "Config.h"
 #include <iostream>
 
@@ -103,64 +103,64 @@ class KernelArg{
       }
 
       int isArray(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_ARRAY);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_ARRAY);
       }
       int isReadByKernel(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_READ);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_READ);
       }
       int isMutableByKernel(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_WRITE);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_WRITE);
       }
       int isExplicit(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_EXPLICIT);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_EXPLICIT);
       }
       int usesArrayLength(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_ARRAYLENGTH);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_ARRAYLENGTH);
       }
       int isExplicitWrite(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_EXPLICIT_WRITE);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_EXPLICIT_WRITE);
       }
       int isImplicit(){
          return(!isExplicit());
       }
       int isPrimitive(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_PRIMITIVE);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_PRIMITIVE);
       }
       int isGlobal(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_GLOBAL);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_GLOBAL);
       }
       int isFloat(){
-         return(type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_FLOAT);
+         return(type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_FLOAT);
       }
       int isLong(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_LONG);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_LONG);
       }
       int isInt(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_INT);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_INT);
       }
       int isDouble(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_DOUBLE);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_DOUBLE);
       }
       int isBoolean(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_BOOLEAN);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_BOOLEAN);
       }
       int isByte(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_BYTE);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_BYTE);
       }
       int isShort(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_SHORT);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_SHORT);
       }
       int isLocal(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_LOCAL);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_LOCAL);
       }
       int isStatic(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_STATIC);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_STATIC);
       }
       int isConstant(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_CONSTANT);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_CONSTANT);
       }
       int isAparapiBuffer(){
-         return (type&com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_APARAPI_BUFFER);
+         return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_APARAPI_BUFFER);
       }
       int isBackedByArray(){
          return ( (isArray() && (isGlobal() || isConstant())));
@@ -181,7 +181,7 @@ class KernelArg{
          arrayBuffer->length = jenv->GetIntField(javaArg, numElementsFieldID);
       }
       void clearExplicitBufferBit(JNIEnv* jenv){
-         type &= ~com_syncleus_aparapi_internal_jni_KernelRunnerJNI_ARG_EXPLICIT_WRITE;
+         type &= ~com_aparapi_internal_jni_KernelRunnerJNI_ARG_EXPLICIT_WRITE;
          jenv->SetIntField(javaArg, typeFieldID,type );
       }
 

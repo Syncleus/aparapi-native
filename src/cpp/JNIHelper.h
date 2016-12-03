@@ -44,10 +44,10 @@
 #include "CLException.h"
 #define JavaLangPackage(name) "java/lang/" name
 #define JavaUtilPackage(name) "java/util/" name
-#define AparapiPackage(name) "com/syncleus/aparapi/" name
-#define AparapiDevicePackage(name) "com/syncleus/aparapi/device/" name
-#define AparapiOpenCLPackage(name) "com/syncleus/aparapi/internal/opencl/" name
-#define AparapiUtilPackage(name) "com/syncleus/aparapi/internal/util/" name
+#define AparapiPackage(name) "com/aparapi/aparapi/" name
+#define AparapiDevicePackage(name) "com/aparapi/aparapi/device/" name
+#define AparapiOpenCLPackage(name) "com/aparapi/aparapi/internal/opencl/" name
+#define AparapiUtilPackage(name) "com/aparapi/aparapi/internal/util/" name
 
 #define ProfileInfoClass AparapiPackage("ProfileInfo")
 #define OpenCLKernelClass AparapiOpenCLPackage("OpenCLKernel")
@@ -87,7 +87,7 @@
 
 #define VoidReturn  ArgsVoidReturn("")
 
-#define JNI_JAVA(type, className, methodName) JNIEXPORT type JNICALL Java_com_syncleus_aparapi_internal_jni_##className##_##methodName
+#define JNI_JAVA(type, className, methodName) JNIEXPORT type JNICALL Java_com_aparapi_internal_jni_##className##_##methodName
 
 class JNIHelper {
 
