@@ -6,34 +6,34 @@
    following conditions are met:
 
    Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-   disclaimer. 
+   disclaimer.
 
    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
-   disclaimer in the documentation and/or other materials provided with the distribution. 
+   disclaimer in the documentation and/or other materials provided with the distribution.
 
    Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
-   derived from this software without specific prior written permission. 
+   derived from this software without specific prior written permission.
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-   SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+   SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    If you use the software (in whole or in part), you shall adhere to all applicable U.S., European, and other export
-   laws, including but not limited to the U.S. Export Administration Regulations ("EAR"), (15 C.F.R. Sections 730 
+   laws, including but not limited to the U.S. Export Administration Regulations ("EAR"), (15 C.F.R. Sections 730
    through 774), and E.U. Council Regulation (EC) No 1334/2000 of 22 June 2000.  Further, pursuant to Section 740.6 of
    the EAR, you hereby certify that, except pursuant to a license granted by the United States Department of Commerce
-   Bureau of Industry and Security or as otherwise permitted pursuant to a License Exception under the U.S. Export 
-   Administration Regulations ("EAR"), you will not (1) export, re-export or release to a national of a country in 
-   Country Groups D:1, E:1 or E:2 any restricted technology, software, or source code you receive hereunder, or (2) 
+   Bureau of Industry and Security or as otherwise permitted pursuant to a License Exception under the U.S. Export
+   Administration Regulations ("EAR"), you will not (1) export, re-export or release to a national of a country in
+   Country Groups D:1, E:1 or E:2 any restricted technology, software, or source code you receive hereunder, or (2)
    export to Country Groups D:1, E:1 or E:2 the direct product of such technology or software, if such foreign produced
-   direct product is subject to national security controls as identified on the Commerce Control List (currently 
-   found in Supplement 1 to Part 774 of EAR).  For the most current Country Group listings, or for additional 
+   direct product is subject to national security controls as identified on the Commerce Control List (currently
+   found in Supplement 1 to Part 774 of EAR).  For the most current Country Group listings, or for additional
    information about the EAR or your obligations under those regulations, please refer to the U.S. Bureau of Industry
-   and Security�s website at http://www.bis.doc.gov/. 
+   and Security�s website at http://www.bis.doc.gov/.
    */
 
 /** @opencljni.cpp */
@@ -50,9 +50,9 @@
 #include "com_aparapi_internal_jni_OpenCLJNI.h"
 
 
-jobject OpenCLDevice::getPlatformInstance(JNIEnv *jenv, jobject deviceInstance){ 
+jobject OpenCLDevice::getPlatformInstance(JNIEnv *jenv, jobject deviceInstance){
    return(JNIHelper::getInstanceField<jobject>(jenv, deviceInstance, "platform", OpenCLPlatformClassArg ));
-} 
+}
 cl_device_id OpenCLDevice::getDeviceId(JNIEnv *jenv, jobject deviceInstance){
    return((cl_device_id)JNIHelper::getInstanceField<jlong>(jenv, deviceInstance, "deviceId"));
 }
@@ -122,7 +122,7 @@ JNI_JAVA(jobject, OpenCLJNI, createProgram)
 JNI_JAVA(jobject, OpenCLJNI, createKernelJNI)
    (JNIEnv *jenv, jobject jobj, jobject programInstance, jstring name, jobjectArray args) {
       cl_context context = OpenCLProgram::getContext(jenv, programInstance);
-      cl_program program = OpenCLProgram::getProgram(jenv, programInstance); 
+      cl_program program = OpenCLProgram::getProgram(jenv, programInstance);
       cl_int status = CL_SUCCESS;
       const char *nameChars = jenv->GetStringUTFChars(name, NULL);
       if(0)fprintf(stderr, "tring to extract kernel '%s'\n", nameChars);
@@ -149,7 +149,7 @@ void putPrimative(JNIEnv* jenv, cl_kernel kernel, jobject arg, jint argIndex) {
    cl_T value = JNIHelper::getInstanceField<jT>(jenv, arg, "value");
    cl_int status = clSetKernelArg(kernel, argIndex, sizeof(value), (void *)&(value));
    if (status != CL_SUCCESS) {
-      std::cerr << "error setting " << JNIHelper::getType((jT)0) << " arg " << argIndex 
+      std::cerr << "error setting " << JNIHelper::getType((jT)0) << " arg " << argIndex
                 << " " <<  value << " " << CLHelper::errString(status) << "!\n";
    }
 }
@@ -157,7 +157,7 @@ void putPrimative(JNIEnv* jenv, cl_kernel kernel, jobject arg, jint argIndex) {
 void putArg(JNIEnv *jenv, cl_context context, cl_kernel kernel, cl_command_queue commandQueue, cl_event *events, jint *eventc, jint argIndex, jobject argDef, jobject arg){
    cl_int status = CL_SUCCESS;
    jlong argBits = OpenCLArgDescriptor::getBits(jenv, argDef);
-   if (argisset(argBits, ARRAY) && argisset(argBits, GLOBAL)){ 
+   if (argisset(argBits, ARRAY) && argisset(argBits, GLOBAL)){
       jobject memInstance = OpenCLArgDescriptor::getMemInstance(jenv, argDef);
       if (memInstance == NULL){
          // first call?
@@ -167,12 +167,12 @@ void putArg(JNIEnv *jenv, cl_context context, cl_kernel kernel, cl_command_queue
          // check of argBits == memInstance.argBits
          // we need to pin it
          // jboolean isCopy;
-         void *ptr  =  OpenCLMem::pin(jenv, (jarray)arg, &argBits); 
+         void *ptr  =  OpenCLMem::pin(jenv, (jarray)arg, &argBits);
          void *oldPtr = OpenCLMem::getAddress(jenv, memInstance);
          //ptr moved
          if (ptr != oldPtr){
             cl_mem mem = OpenCLMem::getMem(jenv, memInstance);
-            status = clReleaseMemObject(mem); 
+            status = clReleaseMemObject(mem);
             memInstance = OpenCLMem::create(jenv, context, argBits, (jarray)arg);
             OpenCLArgDescriptor::setMemInstance(jenv, argDef, memInstance);
          }
@@ -195,15 +195,15 @@ void putArg(JNIEnv *jenv, cl_context context, cl_kernel kernel, cl_command_queue
          }
          (*eventc)++;
       }
-      status = clSetKernelArg(kernel, argIndex, sizeof(cl_mem), (void *)&(mem));          
+      status = clSetKernelArg(kernel, argIndex, sizeof(cl_mem), (void *)&(mem));
       if (status != CL_SUCCESS) {
          fprintf(stderr, "error setting arg %d %s!\n",  argIndex, CLHelper::errString(status));
       }
-   } else if (argisset(argBits, ARRAY) && argisset(argBits, LOCAL)){ 
+   } else if (argisset(argBits, ARRAY) && argisset(argBits, LOCAL)){
 
       jsize sizeInBytes = OpenCLMem::getArraySizeInBytes(jenv, (jarray)arg, argBits);
       cl_int status = CL_SUCCESS;
-      status = clSetKernelArg(kernel, argIndex, (size_t)sizeInBytes, (void *)NULL);          
+      status = clSetKernelArg(kernel, argIndex, (size_t)sizeInBytes, (void *)NULL);
       if (status != CL_SUCCESS) {
          fprintf(stderr, "error setting arg %d %s!\n",  argIndex, CLHelper::errString(status));
       }
@@ -244,8 +244,8 @@ void getArg(JNIEnv *jenv, cl_context context, cl_command_queue commandQueue, cl_
       jobject arrayInstance = OpenCLMem::getInstance(jenv, memInstance);
       jlong memBits = OpenCLMem::getBits(jenv, memInstance);
       OpenCLMem::unpin(jenv, (jarray)arrayInstance, ptr, &memBits);
-      memreset(memBits, ENQUEUED); 
-      memreset(memBits, COPY); 
+      memreset(memBits, ENQUEUED);
+      memreset(memBits, COPY);
       OpenCLMem::setBits(jenv, memInstance, memBits);
    }
 }
@@ -257,7 +257,7 @@ JNI_JAVA(jobject, OpenCLJNI, getProfileInfo)
    if (profileInfoArr != NULL){
       for (int i=0; profileInfoArr[i] != NULL; i++){
          jobject writeProfileInfo = profileInfoArr[i]->createProfileInfoInstance(jenv);
-        JNIHelper::callVoid(jenv, returnList, "add", ArgsBooleanReturn(ObjectClassArg), writeProfileInfo);  
+        JNIHelper::callVoid(jenv, returnList, "add", ArgsBooleanReturn(ObjectClassArg), writeProfileInfo);
       }
    }
    return(returnList);
@@ -303,7 +303,7 @@ JNI_JAVA(void, OpenCLJNI, disposeKernel)
             }else{
                cl_mem mem = OpenCLMem::getMem(jenv, memInstance);
                size_t sizeInBytes = OpenCLMem::getSizeInBytes(jenv, memInstance);
-               cl_int status = clReleaseMemObject(mem); 
+               cl_int status = clReleaseMemObject(mem);
                //fprintf(stderr, "mem instance %d released!\n", sizeInBytes);
             }
          }
@@ -325,7 +325,7 @@ JNI_JAVA(void, OpenCLJNI, invoke)
       cl_command_queue commandQueue = OpenCLProgram::getCommandQueue(jenv, programInstance);
 
 
-      // walk through the args creating buffers when needed 
+      // walk through the args creating buffers when needed
       // we use the bitfields to determine which is which
       // note that argArray[0] is the range then 1,2,3 etc matches argDefsArray[0,1,2]
       jsize argc = jenv->GetArrayLength(argDefsArray);
@@ -404,7 +404,7 @@ JNI_JAVA(void, OpenCLJNI, invoke)
          //fprintf(stdout, "prev profile list was NULL\n");
       }
       profileInfoArr = NULL;
-  
+
       profileInfoArr = new ProfileInfo*[eventc+1]; // add NULL to end!
       //fprintf(stdout, "allocated a new list %d\n", eventc+1);
       for (int i=0;i<eventc; i++){
@@ -445,16 +445,16 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
 #ifdef __APPLE__
                 || !strncmp(platformVersionName, "OpenCL 1.0", 10)
 #endif
-               ) { 
-               char platformVendorName[512];  
-               char platformName[512];  
+               ) {
+               char platformVendorName[512];
+               char platformName[512];
                status = clGetPlatformInfo(platformIds[platformIdx], CL_PLATFORM_VENDOR, sizeof(platformVendorName), platformVendorName, NULL);
                status = clGetPlatformInfo(platformIds[platformIdx], CL_PLATFORM_NAME, sizeof(platformName), platformName, NULL);
-               //fprintf(stderr, "platform vendor    %d %s\n", platformIdx, platformVendorName); 
-               //fprintf(stderr, "platform version %d %s\n", platformIdx, platformVersionName); 
-               jobject platformInstance = JNIHelper::createInstance(jenv, OpenCLPlatformClass , ArgsVoidReturn(LongArg StringClassArg StringClassArg StringClassArg ), 
+               //fprintf(stderr, "platform vendor    %d %s\n", platformIdx, platformVendorName);
+               //fprintf(stderr, "platform version %d %s\n", platformIdx, platformVersionName);
+               jobject platformInstance = JNIHelper::createInstance(jenv, OpenCLPlatformClass , ArgsVoidReturn(LongArg StringClassArg StringClassArg StringClassArg ),
                      (jlong)platformIds[platformIdx],
-                     jenv->NewStringUTF(platformVersionName), 
+                     jenv->NewStringUTF(platformVersionName),
                      jenv->NewStringUTF(platformVendorName),
                      jenv->NewStringUTF(platformName)
                      );
@@ -498,7 +498,7 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
 
                         //fprintf(stderr, "device type pointer %p", deviceTypeEnumInstance);
                         jobject deviceInstance = JNIHelper::createInstance(jenv, OpenCLDeviceClass, ArgsVoidReturn( OpenCLPlatformClassArg LongArg DeviceTypeClassArg  ),
-                              platformInstance, 
+                              platformInstance,
                               (jlong)deviceIds[deviceIdx],
                               deviceTypeEnumInstance);
                         JNIHelper::callVoid(jenv, platformInstance, "addOpenCLDevice", ArgsVoidReturn( OpenCLDeviceClassArg ), deviceInstance);
@@ -543,6 +543,13 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_LOCAL_MEM_SIZE,  sizeof(localMemSize), &localMemSize, NULL);
                         //fprintf(stderr, "device[%d] CL_DEVICE_LOCAL_MEM_SIZE = %lu\n", deviceIdx, localMemSize);
                         JNIHelper::callVoid(jenv, deviceInstance, "setLocalMemSize", ArgsVoidReturn(LongArg),  localMemSize);
+
+                        char* value;
+                        size_t valueSize;
+                        clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_NAME, 0, NULL, &valueSize);
+                        value = (char*) malloc(valueSize);
+                        clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_NAME, valueSize, value, NULL);
+                        JNIHelper::callVoid(jenv, deviceInstance, "setName", ArgsVoidReturn(StringClassArg), jenv->NewStringUTF(value));
                      }
 
                   }
@@ -553,4 +560,3 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
 
       return (platformListInstance);
    }
-
