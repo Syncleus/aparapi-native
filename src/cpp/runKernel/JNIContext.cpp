@@ -10,7 +10,7 @@ JNIContext::JNIContext(JNIEnv *jenv, jobject _kernelObject, jobject _openCLDevic
       profileBaseTime(0),
       passes(0),
       exec(NULL),
-      deviceType(((flags&com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)==com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)?CL_DEVICE_TYPE_GPU:CL_DEVICE_TYPE_CPU),
+      deviceType(((flags&com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)==com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_GPU)?CL_DEVICE_TYPE_GPU:CL_DEVICE_TYPE_CPU),
       profileFile(NULL),
       valid(JNI_FALSE){
    if (flags&com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC)
