@@ -45,8 +45,13 @@ class CLHelper{
    public:
    static const char *errString(cl_int status);
    static void getBuildErr(JNIEnv *jenv, cl_device_id deviceId, cl_program program, jstring *log);
-   static cl_program compile(JNIEnv *jenv, cl_context context, cl_device_id* deviceId, jstring* source, jstring* binaryKey, jstring* log, cl_int *status);
+   inline static cl_program buildProgram(cl_program program, size_t deviceCount, cl_int* status, cl_device_id* deviceIds, JNIEnv* jenv, jstring* log);
    static jstring getExtensions(JNIEnv *jenv, cl_device_id deviceId, cl_int *status);
+   static cl_program compile(JNIEnv *jenv, cl_context context, size_t deviceCount, cl_device_id* deviceId, jstring source, jstring* log, cl_int *status);
+   // !!! oren change 2015 -> for FPGA binary kernels and allow to manually modify the generated code for other platforms
+   static cl_program createProgramWithSource(JNIEnv *jenv, cl_context context, size_t deviceCount, cl_device_id* deviceId, const char *sourceChars, jstring* log, cl_int *status);
+   static cl_program createProgramWithBinary(JNIEnv *jenv, cl_context context, size_t deviceCount, cl_device_id* deviceIds, const char *fileName, jstring* log, cl_int* status);
+   //static void outputOCLFile(JNIEnv* jenv, JNIContext* jniContext, const char *sourceStr);
 };
 
 #endif // CLHELPER_H

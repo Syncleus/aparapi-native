@@ -38,6 +38,7 @@
 
 /** @opencljni.cpp */
 
+
 #define OPENCLJNI_SOURCE
 #include "OpenCLJNI.h"
 #include "OpenCLArgDescriptor.h"
@@ -423,13 +424,14 @@ JNI_JAVA(void, OpenCLJNI, invoke)
    }
 
 JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
-   (JNIEnv *jenv, jobject jobj) {
+   (JNIEnv *jenv, jobject jobj)
+   {
       jobject platformListInstance = JNIHelper::createInstance(jenv, ArrayListClass, VoidReturn);
       cl_int status = CL_SUCCESS;
       cl_uint platformc;
 
       status = clGetPlatformIDs(0, NULL, &platformc);
-      //fprintf(stderr, "There are %d platforms\n", platformc);
+      fprintf(stderr, "There are %d platforms\n", platformc);
       cl_platform_id* platformIds = new cl_platform_id[platformc];
       status = clGetPlatformIDs(platformc, platformIds, NULL);
 
@@ -458,12 +460,13 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
                      jenv->NewStringUTF(platformVendorName),
                      jenv->NewStringUTF(platformName)
                      );
-               JNIHelper::callVoid(jenv, platformListInstance, "add", ArgsBooleanReturn(ObjectClassArg), platformInstance);
+            JNIHelper::callVoid(jenv, platformListInstance, "add", ArgsBooleanReturn(ObjectClassArg), platformInstance);
 
                cl_uint deviceIdc;
-               cl_device_type requestedDeviceType =CL_DEVICE_TYPE_CPU |CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR;
+               cl_device_type requestedDeviceType = CL_DEVICE_TYPE_ALL;
                status = clGetDeviceIDs(platformIds[platformIdx], requestedDeviceType, 0, NULL, &deviceIdc);
                if (status == CL_SUCCESS && deviceIdc > 0 ){
+                  fprintf(stderr, "found %d devices\n", deviceIdc);
                   cl_device_id* deviceIds = new cl_device_id[deviceIdc];
                   status = clGetDeviceIDs(platformIds[platformIdx], requestedDeviceType, deviceIdc, deviceIds, NULL);
                   if (status == CL_SUCCESS){
@@ -472,19 +475,19 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
                         cl_device_type deviceType;
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_TYPE,  sizeof(deviceType), &deviceType, NULL);
                         jobject deviceTypeEnumInstance = JNIHelper::getStaticFieldObject(jenv, DeviceTypeClass, "UNKNOWN", DeviceTypeClassArg);
-                        //fprintf(stderr, "device[%d] CL_DEVICE_TYPE = ", deviceIdx);
+                        fprintf(stderr, "device[%d] CL_DEVICE_TYPE = ", deviceIdx);
                         if (deviceType & CL_DEVICE_TYPE_DEFAULT) {
                            deviceType &= ~CL_DEVICE_TYPE_DEFAULT;
-                           //fprintf(stderr, "Default ");
+                           fprintf(stderr, "Default ");
                         }
                         if (deviceType & CL_DEVICE_TYPE_CPU) {
                            deviceType &= ~CL_DEVICE_TYPE_CPU;
-                           //fprintf(stderr, "CPU ");
+                           fprintf(stderr, "CPU ");
                            deviceTypeEnumInstance = JNIHelper::getStaticFieldObject(jenv, DeviceTypeClass, "CPU", DeviceTypeClassArg);
                         }
                         if (deviceType & CL_DEVICE_TYPE_GPU) {
                            deviceType &= ~CL_DEVICE_TYPE_GPU;
-                           //fprintf(stderr, "GPU ");
+                           fprintf(stderr, "GPU ");
                            deviceTypeEnumInstance = JNIHelper::getStaticFieldObject(jenv, DeviceTypeClass, "GPU", DeviceTypeClassArg);
                         }
                         if (deviceType & CL_DEVICE_TYPE_ACCELERATOR) {
@@ -492,11 +495,11 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
                            //fprintf(stderr, "Accelerator ");
                            deviceTypeEnumInstance = JNIHelper::getStaticFieldObject(jenv, DeviceTypeClass, "ACC", DeviceTypeClassArg);
                         }
-                        //fprintf(stderr, "(0x%llx) ", deviceType);
-                        //fprintf(stderr, "\n");
+                        fprintf(stderr, "(0x%llx) ", deviceType);
+                        fprintf(stderr, "\n");
 
 
-                        //fprintf(stderr, "device type pointer %p", deviceTypeEnumInstance);
+                        fprintf(stderr, "device type pointer %p", deviceTypeEnumInstance);
                         jobject deviceInstance = JNIHelper::createInstance(jenv, OpenCLDeviceClass, ArgsVoidReturn( OpenCLPlatformClassArg LongArg DeviceTypeClassArg  ),
                               platformInstance,
                               (jlong)deviceIds[deviceIdx],
@@ -506,42 +509,42 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
 
                         cl_uint maxComputeUnits;
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_MAX_COMPUTE_UNITS,  sizeof(maxComputeUnits), &maxComputeUnits, NULL);
-                        //fprintf(stderr, "device[%d] CL_DEVICE_MAX_COMPUTE_UNITS = %u\n", deviceIdx, maxComputeUnits);
+                        fprintf(stderr, "device[%d] CL_DEVICE_MAX_COMPUTE_UNITS = %u\n", deviceIdx, maxComputeUnits);
                         JNIHelper::callVoid(jenv, deviceInstance, "setMaxComputeUnits", ArgsVoidReturn(IntArg),  maxComputeUnits);
 
 
 
                         cl_uint maxWorkItemDimensions;
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,  sizeof(maxWorkItemDimensions), &maxWorkItemDimensions, NULL);
-                        //fprintf(stderr, "device[%d] CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS = %u\n", deviceIdx, maxWorkItemDimensions);
+                        fprintf(stderr, "device[%d] CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS = %u\n", deviceIdx, maxWorkItemDimensions);
                         JNIHelper::callVoid(jenv, deviceInstance, "setMaxWorkItemDimensions",  ArgsVoidReturn(IntArg),  maxWorkItemDimensions);
 
                         size_t *maxWorkItemSizes = new size_t[maxWorkItemDimensions];
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_MAX_WORK_ITEM_SIZES,  sizeof(size_t)*maxWorkItemDimensions, maxWorkItemSizes, NULL);
 
                         for (unsigned dimIdx = 0; dimIdx < maxWorkItemDimensions; dimIdx++){
-                           //fprintf(stderr, "device[%d] dim[%d] = %d\n", deviceIdx, dimIdx, maxWorkItemSizes[dimIdx]);
+                           fprintf(stderr, "device[%d] dim[%d] = %d\n", deviceIdx, dimIdx, maxWorkItemSizes[dimIdx]);
                            JNIHelper::callVoid(jenv, deviceInstance, "setMaxWorkItemSize", ArgsVoidReturn(IntArg IntArg), dimIdx,maxWorkItemSizes[dimIdx]);
                         }
 
                         size_t maxWorkGroupSize;
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_MAX_WORK_GROUP_SIZE,  sizeof(maxWorkGroupSize), &maxWorkGroupSize, NULL);
-                        //fprintf(stderr, "device[%d] CL_DEVICE_MAX_GROUP_SIZE = %u\n", deviceIdx, maxWorkGroupSize);
+                        fprintf(stderr, "device[%d] CL_DEVICE_MAX_GROUP_SIZE = %u\n", deviceIdx, maxWorkGroupSize);
                         JNIHelper::callVoid(jenv, deviceInstance, "setMaxWorkGroupSize",  ArgsVoidReturn(IntArg),  maxWorkGroupSize);
 
                         cl_ulong maxMemAllocSize;
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_MAX_MEM_ALLOC_SIZE,  sizeof(maxMemAllocSize), &maxMemAllocSize, NULL);
-                        //fprintf(stderr, "device[%d] CL_DEVICE_MAX_MEM_ALLOC_SIZE = %lu\n", deviceIdx, maxMemAllocSize);
+                        fprintf(stderr, "device[%d] CL_DEVICE_MAX_MEM_ALLOC_SIZE = %lu\n", deviceIdx, maxMemAllocSize);
                         JNIHelper::callVoid(jenv, deviceInstance, "setMaxMemAllocSize",  ArgsVoidReturn(LongArg),  maxMemAllocSize);
 
                         cl_ulong globalMemSize;
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_GLOBAL_MEM_SIZE,  sizeof(globalMemSize), &globalMemSize, NULL);
-                        //fprintf(stderr, "device[%d] CL_DEVICE_GLOBAL_MEM_SIZE = %lu\n", deviceIdx, globalMemSize);
+                        fprintf(stderr, "device[%d] CL_DEVICE_GLOBAL_MEM_SIZE = %lu\n", deviceIdx, globalMemSize);
                         JNIHelper::callVoid(jenv, deviceInstance, "setGlobalMemSize", ArgsVoidReturn(LongArg),  globalMemSize);
 
                         cl_ulong localMemSize;
                         status = clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_LOCAL_MEM_SIZE,  sizeof(localMemSize), &localMemSize, NULL);
-                        //fprintf(stderr, "device[%d] CL_DEVICE_LOCAL_MEM_SIZE = %lu\n", deviceIdx, localMemSize);
+                        fprintf(stderr, "device[%d] CL_DEVICE_LOCAL_MEM_SIZE = %lu\n", deviceIdx, localMemSize);
                         JNIHelper::callVoid(jenv, deviceInstance, "setLocalMemSize", ArgsVoidReturn(LongArg),  localMemSize);
 
                         char* value;
@@ -556,7 +559,7 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
                }
             }
          }
-      }
+      //}
 
       return (platformListInstance);
    }

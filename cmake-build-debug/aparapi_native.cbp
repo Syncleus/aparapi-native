@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="aparapi_native"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/freemo/source/aparapi-native/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/freemo/source/aparapi-native/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/freemo/source/aparapi-native/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="aparapi_native">
+				<Option output="/home/freemo/source/aparapi-native/cmake-build-debug/aparapi_native" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/freemo/source/aparapi-native/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/freemo/source/aparapi-native/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include-fixed"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/../../../../include/c++/6.2.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/../../../../include/c++/6.2.1/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/../../../../include/c++/6.2.1/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 aparapi_native"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="aparapi_native/fast">
+				<Option output="/home/freemo/source/aparapi-native/cmake-build-debug/aparapi_native" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/freemo/source/aparapi-native/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/freemo/source/aparapi-native/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include-fixed"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/../../../../include/c++/6.2.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/../../../../include/c++/6.2.1/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/../../../../include/c++/6.2.1/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 aparapi_native/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/freemo/source/aparapi-native/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/CLException.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/CLHelper.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/CLHelper.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/Common.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/JNIHelper.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/JNIHelper.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/agent.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/classtools.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/classtools.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/classtoolstest.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/cltest.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/JavaArgs.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/OpenCLArgDescriptor.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/OpenCLArgDescriptor.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/OpenCLJNI.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/OpenCLJNI.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/OpenCLKernel.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/OpenCLMem.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/OpenCLMem.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/invoke/OpenCLProgram.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/Aparapi.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/Aparapi.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/AparapiBuffer.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/AparapiBuffer.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/ArrayBuffer.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/ArrayBuffer.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/Config.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/Config.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/JNIContext.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/JNIContext.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/KernelArg.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/KernelArg.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/List.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/ProfileInfo.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/ProfileInfo.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/Range.cpp">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/src/cpp/runKernel/Range.h">
+			<Option target="aparapi_native"/>
+		</Unit>
+		<Unit filename="/home/freemo/source/aparapi-native/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

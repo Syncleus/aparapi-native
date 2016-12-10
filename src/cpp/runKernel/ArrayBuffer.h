@@ -41,12 +41,16 @@
 #include "Common.h"
 #include "ProfileInfo.h"
 
+/////////////////////////////////
+// if not in memory alignment test mode
+#ifndef TEST_ALIGNED_MEM
+/////////////////////////////////
 class ArrayBuffer{
    public:
-      jobject javaArray;        // The java array that this arg is mapped to 
+      jobject javaArray;        // The java array that this arg is mapped to
       cl_uint length;           // the number of elements for arrays (used only when ARRAYLENGTH bit is set for this arg)
       jint lengthInBytes;       // bytes in the array or directBuf
-      cl_mem mem;               // the opencl buffer 
+      cl_mem mem;               // the opencl buffer
       void *addr;               // the last address where we saw this java array object
       cl_uint memMask;          // the mask used for createBuffer
       jboolean isCopy;
@@ -60,5 +64,74 @@ class ArrayBuffer{
       void unpinCommit(JNIEnv *jenv);
       void pin(JNIEnv *jenv);
 };
+
+#else // defined TEST_ALIGNED_MEM
+// !!! oren mem tests
+////////////////
+// Need to align host data to 32 bytes to be able to use DMA
+// LINUX/WINDOWS macros are defined in Makefiles.
+#define ACL_ALIGNMENT 128 //64
+
+#define LINUX
+
+#ifdef LINUX
+
+#include <stdlib.h>
+
+inline void* acl_aligned_malloc (size_t size) {
+  void *result = NULL;
+  posix_memalign (&result, ACL_ALIGNMENT, size);
+  return result;
+}
+inline void acl_aligned_free (void *ptr) {
+  free (ptr);
+}
+#else // WINDOWS
+inline void* acl_aligned_malloc (size_t size) {
+  return _aligned_malloc (size, ACL_ALIGNMENT);
+}
+inline void acl_aligned_free (void *ptr) {
+  _aligned_free (ptr);
+}
+#endif // LINUX
+
+//class ACLMemMgr
+//{
+//public:
+//	void *allocatePrimitiveArray(jobject javaArray, jint lengthInBytes)
+//	{
+//		javaArray.
+//
+//	}
+//};
+////////////////
+
+
+class ArrayBuffer{
+   public:
+      jobject javaArray;        // The java array that this arg is mapped to 
+      cl_uint length;           // the number of elements for arrays (used only when ARRAYLENGTH bit is set for this arg)
+      jint lengthInBytes;       // bytes in the array or directBuf
+      cl_mem mem;               // the opencl buffer 
+      void *addr;               // the last address where we saw this java array object
+      // !!! oren mem test
+      //void* aclPtr;             // acl memory pointer
+      void* addrJVM;             // old jvm memory pointer
+      bool isMemModifiedFlag;    // try to save redundant memory copies
+      /////////////
+      cl_uint memMask;          // the mask used for createBuffer
+      jboolean isCopy;
+      jboolean isPinned;
+      char memSpec[128];        // The string form of the mask we used for create buffer. for debugging
+      ProfileInfo read;
+      ProfileInfo write;
+
+      ArrayBuffer();
+      ~ArrayBuffer();
+      void unpinAbort(JNIEnv *jenv);
+      void unpinCommit(JNIEnv *jenv);
+      void pin(JNIEnv *jenv);
+};
+#endif // eof TEST_ALIGNED_MEM
 
 #endif // ARRAYBUFFER_H

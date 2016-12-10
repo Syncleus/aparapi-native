@@ -1,0 +1,3 @@
+/home/freemo/source/aparapi-native/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/freemo/source/aparapi-native/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/freemo/source/aparapi-native/cmake-build-debug/CMakeFiles/aparapi_native.dir

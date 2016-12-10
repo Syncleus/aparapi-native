@@ -7,6 +7,8 @@
 #include "ProfileInfo.h"
 #include "com_aparapi_internal_jni_KernelRunnerJNI.h"
 #include "Config.h"
+#include "ConfigSettings.h"
+
 
 class JNIContext {
 private: 
@@ -37,6 +39,8 @@ public:
 
    ProfileInfo *exec;
    FILE* profileFile;
+   // !!! oren change
+   PlatformConfig::Ptr platformConfigPtr;
 
    JNIContext(JNIEnv *jenv, jobject _kernelObject, jobject _openCLDeviceObject, jint _flags);
    

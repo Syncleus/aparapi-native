@@ -47,13 +47,23 @@ class Config{
       jboolean enableVerboseJNIOpenCLResourceTracking;
       jboolean enableProfiling;
       jboolean enableProfilingCSV;
+      // !!! oren change -> add profile name info
+      char *profilingFileNameFormatStr;
+
 
       jboolean getBoolean(JNIEnv *jenv, const char *fieldName);
+      // !!! oren change -> add profile name info
+      jstring getString(JNIEnv *jenv, const char *fieldName);
+      jstring callGetStringMethod(JNIEnv *jenv, const char *methodName);
+
       Config(JNIEnv *jenv);
+      ~Config();
       jboolean isVerbose();
       jboolean isProfilingCSVEnabled();
       jboolean isTrackingOpenCLResources();
       jboolean isProfilingEnabled();
+      // !!! oren change -> add profile name info
+      const char*getProfilingFileNameFormatStr();
 };
 
 #ifdef CONFIG_SOURCE

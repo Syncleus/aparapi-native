@@ -49,6 +49,8 @@ ArrayBuffer::ArrayBuffer():
    isPinned(false){
    }
 
+#ifndef TEST_ALIGNED_MEM
+
 void ArrayBuffer::unpinAbort(JNIEnv *jenv){
    jenv->ReleasePrimitiveArrayCritical((jarray)javaArray, addr,JNI_ABORT);
    isPinned = JNI_FALSE;
@@ -62,3 +64,76 @@ void ArrayBuffer::pin(JNIEnv *jenv){
    addr = jenv->GetPrimitiveArrayCritical((jarray)javaArray,&isCopy);
    isPinned = JNI_TRUE;
 }
+
+#else // defined TEST_ALIGNED_MEM
+ArrayBuffer::~ArrayBuffer()
+{
+   // !!! oren fix mem leak
+   if(addr!=NULL)
+   {
+     acl_aligned_free(addr);//aclPtr
+ 	 fprintf(stderr, "Deallocated %d bytes at address %x\n",lengthInBytes,(long)addr);
+     //addr = NULL;
+   }
+}
+
+void ArrayBuffer::unpinAbort(JNIEnv *jenv){
+   // !!! oren mem test
+   //jenv->ReleasePrimitiveArrayCritical((jarray)javaArray, addr,JNI_ABORT);
+	// if its a read only argument we don't need to copy data back
+	//if (!isMutableByKernel())
+   //memcpy(addrJVM,addr,lengthInBytes);
+   //jenv->MonitorEnter(javaArray);
+   if(addr!=NULL)
+   {
+     acl_aligned_free(addr);//aclPtr
+ 	 fprintf(stderr, "Deallocated %d bytes at address %x\n",lengthInBytes,(long)addr);
+     addr = NULL;
+   }
+   //jenv->MonitorExit(javaArray);
+
+   jenv->ReleasePrimitiveArrayCritical((jarray)javaArray, addrJVM,JNI_ABORT);
+   //////////////////////////////////
+   isPinned = JNI_FALSE;
+}
+void ArrayBuffer::unpinCommit(JNIEnv *jenv){
+   // !!! oren mem test
+   //jenv->ReleasePrimitiveArrayCritical((jarray)javaArray, addr, 0);
+	// if it was write or read write we need to update
+	//if (isMutableByKernel())
+   //jenv->MonitorEnter(javaArray);
+   if(addr!=NULL)
+   {
+     memcpy(addrJVM,addr,lengthInBytes);
+     ///acl_aligned_free(addr);//aclPtr
+     ///addr = NULL;
+     isMemModifiedFlag = false;
+   }
+   //jenv->MonitorExit(javaArray);
+
+   jenv->ReleasePrimitiveArrayCritical((jarray)javaArray, addrJVM, 0);
+   //////////////////////////////////
+   isPinned = JNI_FALSE;
+}
+void ArrayBuffer::pin(JNIEnv *jenv){
+   void *ptr = addr;
+   // !!! oren mem test
+   //addr = jenv->GetPrimitiveArrayCritical((jarray)javaArray,&isCopy);
+   addrJVM = jenv->GetPrimitiveArrayCritical((jarray)javaArray,&isCopy);
+   //void* aclPtr
+   //jenv->MonitorEnter(javaArray);
+   if(addr==NULL)
+   {
+     addr = acl_aligned_malloc ((size_t)lengthInBytes);
+ 	 fprintf(stderr, "Allocated %d bytes at address %x\n",lengthInBytes,(long)addr);
+   }
+   isMemModifiedFlag = true;
+   memcpy(addr,addrJVM,lengthInBytes);
+   //jenv->MonitorExit(javaArray);
+   //addrJVM = addr;
+   //jenv->ReleasePrimitiveArrayCritical((jarray)javaArray, addr, 0);
+   //addr = aclPtr;
+   ////////////////////
+   isPinned = JNI_TRUE;
+}
+#endif // TEST_ALIGNED_MEM

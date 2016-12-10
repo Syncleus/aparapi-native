@@ -36,6 +36,7 @@
    and Security?s website at http://www.bis.doc.gov/. 
    */
 
+
 #define APARAPI_SOURCE
 
 //this is a workaround for windows machines since <windows.h> defines min/max that break code.
@@ -49,11 +50,14 @@
 #include "CLHelper.h"
 #include "List.h"
 #include <algorithm>
+//#include <string>
 
 static const int PASS_ID_PREPARING_EXECUTION = -2;
 static const int PASS_ID_COMPLETED_EXECUTION = -1;
 static const int CANCEL_STATUS_FALSE = 0;
 static const int CANCEL_STATUS_TRUE = 1;
+
+#include "ConfigSettings.h"
 
 //compiler dependant code
 /**
@@ -875,7 +879,12 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
             jniContext->commandQueue,
             jniContext->kernel,
             range.dims,
+    	    // !!! oren change -> Altera OpenCL complains about offset being set -> failed invalid global offset
+#ifndef ALTERA_OPENCL
             range.offsets,
+#else   // need null for Altera
+            NULL,
+#endif
             range.globalDims,
             range.localDims,
             writeCount,
@@ -885,8 +894,14 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
       if (status != CL_SUCCESS) {
 
          for(int i = 0; i<range.dims;i++) {
-            fprintf(stderr, "after clEnqueueNDRangeKernel, globalSize[%d] = %d, localSize[%d] = %d\n",
-                  i, (int)range.globalDims[i], i, (int)range.localDims[i]);
+    	  // !!! oren change -> print more info 
+         //for(int i = 0; i<range.dims;i++) {
+         //   fprintf(stderr, "after clEnqueueNDRangeKernel, globalSize[%d] = %d, localSize[%d] = %d\n",
+         //         i, (int)range.globalDims[i], i, (int)range.localDims[i]);
+        	fprintf(stderr, "clEnqueueNDRangeKernel Error = %d\n",status);
+            fprintf(stderr, "after clEnqueueNDRangeKernel, globalSize[%d] = %d, localSize[%d] = %d, offsets[%d] = %d\n",
+                  i, (int)range.globalDims[i], i, (int)range.localDims[i],i, (int)range.localDims[i], i, (int)range.offsets[i]);
+
          }
          throw CLException(status, "clEnqueueNDRangeKernel()");
       }
@@ -1159,6 +1174,66 @@ JNI_JAVA(jlong, KernelRunnerJNI, initJNI)
       }
    }
 
+// !!! oren change -> add ability to save kernel class name for multi kernel option
+inline char* getClassName(JNIEnv* jenv, JNIContext* jniContext, const char *optExStr=NULL)
+{
+   jclass classMethodAccess = jenv->FindClass("java/lang/Class");
+   jmethodID getNameID = jenv->GetMethodID(classMethodAccess,"getName","()Ljava/lang/String;");
+   jstring className = (jstring)jenv->CallObjectMethod(jniContext->kernelClass, getNameID);
+   const char *classNameChars = jenv->GetStringUTFChars(className, NULL);
+
+   // calc str requierd size
+   int strLen = strlen(classNameChars);
+   if(optExStr!=NULL)
+	   strLen += strlen(optExStr);
+
+   char* classNameStr = new char[strLen+1];
+      strcpy(classNameStr,classNameChars);
+
+   // !!! Java adds '$' chars to inner class names so replace them with '.'
+   char *charPtr = classNameStr;
+   while(charPtr = strchr(charPtr,'$'))
+   {
+	   *charPtr = jniContext->platformConfigPtr->getFileSeperator();//BINARY_FILE_SEP;
+	   charPtr++;
+   }
+
+   // add optional extension if any
+   if(optExStr)
+	   strcat(classNameStr,optExStr);
+
+   //sprintf(fnameStr, "%s.%s.%d.%llx\n", classNameChars, timeStr, pid, jniContext);
+   //sprintf(nameStr, "aparapiprof.%s.%d.%016lx", timeStr, pid, (unsigned long)jniContext);
+   jenv->ReleaseStringUTFChars(className, classNameChars);
+
+   return classNameStr;
+}
+
+const char *OSPathSeparator =
+#ifdef _WIN32
+                            "\\";
+#else
+                            "/";
+#endif
+
+char *buildFilePath(const char *basePart,const char *filePart)
+{
+    int fullPathLength = strlen(filePart);
+    if(basePart!=NULL)
+    	fullPathLength += strlen(basePart);
+    char *fullPath = new char[fullPathLength + 1];
+    //!!! poz bug fix - init to null !!!
+    fullPath[0]='\0';
+    if(basePart!=NULL)
+    {
+      strcpy(fullPath,basePart);
+      // !!! Handle os dependent separator !!!
+      if(fullPath[strlen(fullPath)-1]!=OSPathSeparator[0])
+        strcat(fullPath,OSPathSeparator);
+    }
+    strcat(fullPath,filePart);
+    return fullPath;
+}
 
 void writeProfile(JNIEnv* jenv, JNIContext* jniContext) {
    // compute profile filename
@@ -1166,10 +1241,18 @@ void writeProfile(JNIEnv* jenv, JNIContext* jniContext) {
    // timestamp
    // kernel name
 
-   jclass classMethodAccess = jenv->FindClass("java/lang/Class"); 
-   jmethodID getNameID = jenv->GetMethodID(classMethodAccess,"getName","()Ljava/lang/String;");
-   jstring className = (jstring)jenv->CallObjectMethod(jniContext->kernelClass, getNameID);
-   const char *classNameChars = jenv->GetStringUTFChars(className, NULL);
+   //jclass classMethodAccess = jenv->FindClass("java/lang/Class");
+   //jmethodID getNameID = jenv->GetMethodID(classMethodAccess,"getName","()Ljava/lang/String;");
+   //jstring className = (jstring)jenv->CallObjectMethod(jniContext->kernelClass, getNameID);
+   //const char *classNameChars = jenv->GetStringUTFChars(className, NULL);
+
+   //
+   // !!! oren change -> change the csv profiling info file naming convention to make it easier to track them (use classname + user fileNameFormatStr)
+   //
+   const char *fileNameFormatStr =config->getProfilingFileNameFormatStr();
+
+   const char *fileNameBaseStr = getClassName(jenv,jniContext,NULL);
+
 
    const size_t TIME_STR_LEN = 200;
 
@@ -1181,14 +1264,31 @@ void writeProfile(JNIEnv* jenv, JNIContext* jniContext) {
       perror("localtime");
    }
    //strftime(timeStr, TIME_STR_LEN, "%F.%H%M%S", tmp);  %F seemed to cause a core dump
-   strftime(timeStr, TIME_STR_LEN, "%H%M%S", tmp);
+   //strftime(timeStr, TIME_STR_LEN, "%H%M%S", tmp);
+   // !!! oren change -> changed to an ISO like format
+   strftime(timeStr, TIME_STR_LEN, "%Y-%m-%dT%H%M%S", tmp);
 
-   char* fnameStr = new char[strlen(classNameChars) + strlen(timeStr) + 128];
+   int strLen = strlen(fileNameBaseStr) + strlen(timeStr);
+   if(fileNameFormatStr!=NULL)
+	   strLen+= strlen(fileNameFormatStr);
+
+   // !!! Note -> add lots of padding space for pid -> 60 digits * 2 (16bit per char)
+   // !!! would be better to change to log10 of max int * 2 ? 64bit => ~20 digits
+   char* fnameStr = new char[strLen + 128];
+
    jint pid = getProcess();
 
    //sprintf(fnameStr, "%s.%s.%d.%llx\n", classNameChars, timeStr, pid, jniContext);
-   sprintf(fnameStr, "aparapiprof.%s.%d.%p", timeStr, pid, jniContext);
-   jenv->ReleaseStringUTFChars(className, classNameChars);
+
+   //if(fileNameFormatStr!=NULL)
+   //sprintf(fnameStr, "%s.%s.%d", fileNameBaseStr, fileNameFormatStr, timeStr, pid);
+   sprintf(fnameStr, "%s.%s.%s.%d.apf", fileNameBaseStr, fileNameFormatStr, timeStr, pid);
+   //else
+   //  sprintf(fnameStr, "aparapiprof.%s.%d.%016lx", timeStr, pid, (unsigned long)jniContext);
+   delete []fileNameBaseStr;
+
+   //jenv->ReleaseStringUTFChars(className, classNameChars);
+   fprintf(stderr, "Profiling data file => %s\n",fnameStr);
 
    FILE* profileFile = fopen(fnameStr, "w");
    if (profileFile != NULL) {
@@ -1200,17 +1300,84 @@ void writeProfile(JNIEnv* jenv, JNIContext* jniContext) {
    delete []fnameStr;
 }
 
+#define AUTO_GEN_KERNEL_STR_STAMP "/* Auto Generated APARAPI-UCores OpenCL Kernel */\n"
+
+inline void outputOCLFile(JNIEnv* jenv, JNIContext* jniContext, const char *sourceStr)
+{
+    char *clFileName = getClassName(jenv,jniContext,".cl");
+ 	fprintf(stderr, "Output kernel file => %s\n",clFileName);
+    //const char *sourceChars = jenv->GetStringUTFChars(source, NULL);
+
+    FILE *fp = fopen(clFileName,"wt");
+    if(fp!=NULL)
+    {
+  	  //strftime(timeStr, TIME_STR_LEN, "%H%M%S", tmp);
+      fprintf(fp,"%s%s",AUTO_GEN_KERNEL_STR_STAMP,sourceStr);
+      //fprintf(fp,"%s",sourceStr);
+ 	  fclose(fp);
+    }
+    else
+      fprintf(stderr, "!!! Output kernel file failed\n");
+
+
+    //jenv->ReleaseStringUTFChars(source, sourceChars);
+ 	delete []clFileName;
+
+}
+
+inline void verifyFlow(JNIContext* jniContext, jint &buildFlags)
+{
+	PlatformConfig::Ptr platformConfigPtr = jniContext->platformConfigPtr;
+    // verify flow support is available
+    if(!(platformConfigPtr->getFlowSupport() & buildFlags))
+    {
+        fprintf(stderr, "!!! Error requested flow(%0xd) not available !!!\n",buildFlags);
+        throw CLException(CL_INVALID_VALUE,"buildProgramJNI() -> bad request flow");
+    }
+
+    // check/set if default flow is requested
+    if(buildFlags==DEFAULT_FLOW)
+    	buildFlags = platformConfigPtr->getDefaultFlowSupport();
+}
+
 JNI_JAVA(jlong, KernelRunnerJNI, buildProgramJNI)
-   (JNIEnv *jenv, jobject jobj, jlong jniContextHandle, jstring source, jstring binaryKey) {
+   (JNIEnv *jenv, jobject jobj, jlong jniContextHandle, jstring source, jstring binaryKey, jint buildFlags) {
       JNIContext* jniContext = JNIContext::getJNIContext(jniContextHandle);
       if (jniContext == NULL){
          return 0;
       }
 
       try {
-         cl_int status = CL_SUCCESS;
+        cl_int status = CL_SUCCESS;
 
-         jniContext->program = CLHelper::compile(jenv, jniContext->context, &jniContext->deviceId, &source, &binaryKey, NULL, &status);
+        const char *sourceChars = jenv->GetStringUTFChars(source, NULL);
+
+#ifdef OUTPUT_OCL_FILE
+        outputOCLFile(jenv,jniContext,sourceChars);
+#endif
+
+        // !!! oren change ->
+        // verify the flow and modify if need be
+        verifyFlow(jniContext,buildFlags);
+
+//#ifdef USE_BINARY_FILE
+        if(buildFlags & com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_BINARY_FLOW)
+        {
+          char *binFileFolder = getenv(BINARY_FOLDER_ENV_VAR);
+          fprintf(stderr, "Bin Folder is %s\n",binFileFolder);
+          char *binFileName = getClassName(jenv,jniContext,jniContext->platformConfigPtr->getBinFileExtension());//BINARY_FILE_EXT
+          char *fullBinFilePath = buildFilePath(binFileFolder,binFileName);
+          fprintf(stderr, "FullBinFilePath is %s\n",fullBinFilePath);
+     	  jniContext->program = CLHelper::createProgramWithBinary(jenv, jniContext->context,  1, &jniContext->deviceId, fullBinFilePath, NULL, &status);
+     	  delete []binFileName;
+     	  delete []fullBinFilePath;
+        }
+//#else
+        else
+          jniContext->program = CLHelper::createProgramWithSource(jenv, jniContext->context,  1, &jniContext->deviceId, sourceChars, NULL, &status);
+//#endif
+
+        jenv->ReleaseStringUTFChars(source, sourceChars);
 
          if(status == CL_BUILD_PROGRAM_FAILURE) throw CLException(status, "");
 

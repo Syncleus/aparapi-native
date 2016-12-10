@@ -33,8 +33,12 @@
    direct product is subject to national security controls as identified on the Commerce Control List (currently 
    found in Supplement 1 to Part 774 of EAR).  For the most current Country Group listings, or for additional 
    information about the EAR or your obligations under those regulations, please refer to the U.S. Bureau of Industry
-   and Security’s website at http://www.bis.doc.gov/. 
+   and Securityï¿½s website at http://www.bis.doc.gov/. 
    */
+
+
+// !!! Oren change 6.21.13 -> define altera's OpenCL modifications
+//#define ALTERA_OPENCL
 
 #define CLHELPER_SOURCE
 #include "CLHelper.h"
@@ -132,63 +136,57 @@ void CLHelper::getBuildErr(JNIEnv *jenv, cl_device_id deviceId,  cl_program prog
    delete []buildLog;
 }
 
-cl_program CLHelper::compile(JNIEnv *jenv, cl_context context, cl_device_id* deviceId, jstring* source, jstring* binaryKey, jstring* log, cl_int* status){
-   using std::map;
-   using std::vector;
-   using std::string;
+inline cl_program CLHelper::buildProgram(cl_program program, size_t deviceCount, cl_int* status, cl_device_id* deviceIds, JNIEnv* jenv, jstring* log)
+{
+	*status = clBuildProgram(program, deviceCount, deviceIds, NULL, NULL, NULL);
+	if (*status == CL_BUILD_PROGRAM_FAILURE) {
+		getBuildErr(jenv, *deviceIds, program, log);
+	}
+	return program;
+}
 
-   static map<string, vector<unsigned char *> > src2bin;
-   static map<string, vector<size_t> > src2len;
+cl_program CLHelper::compile(JNIEnv *jenv, cl_context context, size_t deviceCount, cl_device_id* deviceIds, jstring source, jstring* log, cl_int* status)
+{
+   const char *sourceChars = jenv->GetStringUTFChars(source, NULL);
+   size_t sourceSize[] = { strlen(sourceChars) };
+   cl_program program = clCreateProgramWithSource(context, 1, &sourceChars, sourceSize, status);
+   jenv->ReleaseStringUTFChars(source, sourceChars);
 
-   const char* sourceChars = jenv->GetStringUTFChars(*source, NULL);
-   const char* keyChars = jenv->GetStringUTFChars(*binaryKey, NULL);
-   string sourceStr(sourceChars);
-   string keyStr(keyChars);
+   program = buildProgram(program, deviceCount, status, deviceIds, jenv, log);
+   return(program);
+}
 
-   size_t sourceLength[] = {sourceStr.length()};
+cl_program CLHelper::createProgramWithSource(JNIEnv *jenv, cl_context context, size_t deviceCount, cl_device_id* deviceIds, const char *sourceChars, jstring* log, cl_int* status)
+{
+   size_t sourceSize[] = { strlen(sourceChars) };
+   cl_program program = clCreateProgramWithSource(context, 1, &sourceChars, sourceSize, status);
 
-   bool cacheDisabled = jenv->GetStringLength(*binaryKey) == 0;
+   program = buildProgram(program, deviceCount, status, deviceIds, jenv, log);
+   return(program);
+}
 
-   cl_program program;
-   bool is_built_from_source = false;
-   bool keyNotFound = src2bin.find(keyStr) == src2bin.end();
-
-   if (cacheDisabled || keyNotFound) {
-      is_built_from_source = true;
-      program = clCreateProgramWithSource(context, 1, &sourceChars, sourceLength, status);
+// !!! oren change 2015 -> for FPGA binary kernels and allow to manually modify the generated code for other platforms
+cl_program CLHelper::createProgramWithBinary(JNIEnv *jenv, cl_context context, size_t deviceCount, cl_device_id* deviceIds, const char *fileName, jstring* log, cl_int* status)
+{
+   size_t lengths[1];
+   unsigned char* binaries[1] ={NULL};
+   cl_int error;
+   FILE *fp = fopen(fileName,"rb");
+   if(fp!=NULL)
+   {
+	  fseek(fp,0,SEEK_END);
+	  lengths[0] =ftell(fp);
+	  binaries[0]= (unsigned char*)malloc(sizeof(unsigned char)*lengths[0]);
+	  rewind(fp);
+	  fread(binaries[0],lengths[0],1,fp);
+	  fclose(fp);
    }
-   else{
-      cl_int *binary_status = new cl_int[1];
-      program = clCreateProgramWithBinary(context, 1, deviceId, &src2len[keyStr][0], (const unsigned char**)&src2bin[keyStr][0], binary_status, NULL);
-      cl_int theStatus = binary_status[0];
-      if (theStatus != CL_SUCCESS) {
-         getBuildErr(jenv, *deviceId, program, log);
-      }
-      delete[] binary_status;
-   }
+   else
+     fprintf(stderr, "!!! Load binary file failed: %s\n",fileName);
 
-   jenv->ReleaseStringUTFChars(*source, sourceChars);
-   jenv->ReleaseStringUTFChars(*binaryKey, keyChars);
+   cl_program program = clCreateProgramWithBinary(context,deviceCount, deviceIds,lengths,(const unsigned char **)binaries,status,&error);
 
-   *status = clBuildProgram(program, 1, deviceId, NULL, NULL, NULL);
-   if(*status == CL_BUILD_PROGRAM_FAILURE) {
-      getBuildErr(jenv, *deviceId, program, log);
-   }
-
-   if(is_built_from_source && !cacheDisabled) {
-      vector<unsigned char *> &bins = src2bin[keyStr];
-      vector<size_t> &lens = src2len[keyStr];
-
-      bins.resize(1);
-      lens.resize(1);
-
-      clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &lens[0], NULL);
-      for(size_t i = 0; i < 1; ++i){
-         bins[i] = new unsigned char[lens[i]];
-      }
-
-      clGetProgramInfo(program, CL_PROGRAM_BINARIES, sizeof(unsigned char*), &bins[0], NULL);
-   }
+   program = buildProgram(program, deviceCount, status, deviceIds, jenv, log);
    return(program);
 }
 

@@ -43,6 +43,18 @@ jboolean Config::getBoolean(JNIEnv *jenv, const char *fieldName){
    return(jenv->GetStaticBooleanField(configClass, fieldID));
 }
 
+jstring Config::getString(JNIEnv *jenv, const char *fieldName)
+{
+   jfieldID fieldID =  jenv->GetStaticFieldID(configClass, fieldName, "Ljava/lang/String;");
+   return (jstring)jenv->GetStaticObjectField(configClass, fieldID);
+}
+
+jstring Config::callGetStringMethod(JNIEnv *jenv, const char *methodName)
+{
+	jmethodID method = jenv->GetStaticMethodID( configClass, methodName, "()Ljava/lang/String;" );
+	return (jstring)jenv->CallStaticObjectMethod( configClass, method );
+}
+
 Config::Config(JNIEnv *jenv){
    enableVerboseJNI = false;
    configClass = jenv->FindClass("com/aparapi/internal/jni/ConfigJNI");
@@ -55,6 +67,20 @@ Config::Config(JNIEnv *jenv){
       enableVerboseJNIOpenCLResourceTracking = getBoolean(jenv, "enableVerboseJNIOpenCLResourceTracking");
       enableProfiling = getBoolean(jenv, "enableProfiling");
       enableProfilingCSV = getBoolean(jenv, "enableProfilingCSV");
+      // !!! oren note -> unlike simple types like jboolean, we need to take the jstring and convert to char pointer. 
+      // we can not simply use the jstring later on from another thread. There might be another way to do that, we can revisit later if we care for some reason.
+      jstring fileNameFormatJString = getString(jenv, "profilingFileNameFormatStr");//callGetStringMethod(jenv, "getProfilingFileNameFormatStr");
+      if(fileNameFormatJString!=NULL)
+      {
+        const char *tempFileNameFormatStr =jenv->GetStringUTFChars(fileNameFormatJString, NULL);
+        if(tempFileNameFormatStr!=NULL)
+        {
+          printf("Config using profilingFileNameFormatStr: %s\n",tempFileNameFormatStr);
+          profilingFileNameFormatStr = new char[strlen(tempFileNameFormatStr) + 1];
+          strcpy(profilingFileNameFormatStr,tempFileNameFormatStr);
+        }
+        jenv->ReleaseStringUTFChars(fileNameFormatJString, tempFileNameFormatStr);
+      }
    }
 
    //fprintf(stderr, "Config::enableVerboseJNI=%s\n",enableVerboseJNI?"true":"false");
@@ -75,4 +101,9 @@ jboolean Config::isTrackingOpenCLResources(){
 }
 jboolean Config::isProfilingEnabled(){
    return enableProfiling;
+}
+
+const char *Config::getProfilingFileNameFormatStr()
+{
+	return profilingFileNameFormatStr;
 }
