@@ -1,3 +1,5 @@
+![](http://aparapi.com/images/logo-text-adjacent.png)
+
 git submodule init
 git submodule update
 ./prepare.sh
