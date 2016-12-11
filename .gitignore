@@ -59,3 +59,6 @@ config.status
 libaparapi.la
 
 *.gz
+
+CMakeLists.txt
+cmake-build-debug/
