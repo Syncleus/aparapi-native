@@ -12,7 +12,7 @@
 #include <memory>
 
 // use values from JNI config
-#include "com_amd_aparapi_internal_jni_KernelRunnerJNI.h"
+#include "com_aparapi_internal_jni_KernelRunnerJNI.h"
 
 // auto output kernel.cl file
 #define OUTPUT_OCL_FILE
@@ -23,9 +23,9 @@
 ///////////////////////////
 // help determine if platform supports source/binary flows
 ///////////////////////////
-#define SOURCE_FLOW   com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_SOURCE_FLOW
-#define BINARY_FLOW   com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_BINARY_FLOW
-#define DEFAULT_FLOW  com_amd_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_DEFAULT_FLOW
+#define SOURCE_FLOW   com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_SOURCE_FLOW
+#define BINARY_FLOW   com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_BINARY_FLOW
+#define DEFAULT_FLOW  com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_DEFAULT_FLOW
 ///////////////////////////
 
 //#define FILE_EXT_LENGTH 8

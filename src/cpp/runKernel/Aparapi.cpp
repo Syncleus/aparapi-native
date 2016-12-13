@@ -1341,7 +1341,7 @@ inline void verifyFlow(JNIContext* jniContext, jint &buildFlags)
 }
 
 JNI_JAVA(jlong, KernelRunnerJNI, buildProgramJNI)
-   (JNIEnv *jenv, jobject jobj, jlong jniContextHandle, jstring source, jstring binaryKey, jint buildFlags) {
+   (JNIEnv *jenv, jobject jobj, jlong jniContextHandle, jstring source, jint buildFlags) {
       JNIContext* jniContext = JNIContext::getJNIContext(jniContextHandle);
       if (jniContext == NULL){
          return 0;
