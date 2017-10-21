@@ -3,6 +3,7 @@
 ## 1.2.1
 
 * createProgram in Java had the wrong signature producing a unsatisfied link exception that is now fixed.
+* The same scripts can now compile for Linux and OSX and potentially even windows.
 
 ## 1.2.0
 

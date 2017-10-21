@@ -4,7 +4,7 @@
 git submodule init
 git submodule update
 ./prepare.sh
-libtoolize
+libtoolize (or sometimes glibtoolize on osx)
 aclocal
 autoconf
 automake --add-missing
