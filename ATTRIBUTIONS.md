@@ -10,7 +10,7 @@ Copyright (c) 2010-2011, Advanced Micro Devices, Inc. All rights reserved.
 ## Licenses
 
 Aparapi is currently licensed under the Apache License version 2. However it is important to note that this project has
-used code from other projects originally licensed under seperate, but compatible licenses. Since these license require
+used code from other projects originally licensed under separate, but compatible licenses. Since these license require
 retaining original copyrights, and a reference to the original license it is important to mention that here.
 
 The text of the original license used by AMD contained the following text:
