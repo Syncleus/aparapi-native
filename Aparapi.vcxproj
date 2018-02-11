@@ -64,10 +64,10 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetName>aparapi_x86</TargetName>
     <OutDir>.\dist\</OutDir>
-    <IncludePath>C:\Program Files %28x86%29\AMD APP SDK\3.0\include;C:\Program Files %28x86%29\AMD APP SDK\3.0\include\GL;C:\Program Files %28x86%29\AMD APP SDK\3.0\include\CL;C:\Program Files\Java\jdk1.8.0_111\include\;C:\Program Files\Java\jdk1.8.0_111\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>.\include;.\src\cpp;.\src\cpp\invoke;.\src\cpp\runKernel;%JAVA_HOME%\include\win32;%JAVA_HOME%\include;C:\Program Files %28x86%29\AMD APP SDK\3.0\include;C:\Program Files %28x86%29\AMD APP SDK\3.0\include\GL;C:\Program Files %28x86%29\AMD APP SDK\3.0\include\CL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Program Files %28x86%29\AMD APP SDK\3.0\include;C:\Program Files %28x86%29\AMD APP SDK\3.0\include\GL;C:\Program Files %28x86%29\AMD APP SDK\3.0\include\CL;C:\Program Files\Java\jdk1.8.0_111\include\;C:\Program Files\Java\jdk1.8.0_111\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>.\include;.\src\cpp;.\src\cpp\invoke;.\src\cpp\runKernel;%JAVA_HOME%\include\win32;%JAVA_HOME%\include;C:\Program Files %28x86%29\AMD APP SDK\3.0\include;C:\Program Files %28x86%29\AMD APP SDK\3.0\include\GL;C:\Program Files %28x86%29\AMD APP SDK\3.0\include\CL;$(IncludePath)</IncludePath>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>aparapi_x86</TargetName>
   </PropertyGroup>
