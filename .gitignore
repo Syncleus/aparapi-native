@@ -62,3 +62,8 @@ libaparapi.la
 
 CMakeLists.txt
 cmake-build-debug/
+
+/.vs/
+/x64/
+/Release/
+/Debug/
