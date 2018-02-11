@@ -442,6 +442,7 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
             if (   !strncmp(platformVersionName, "OpenCL 1.2", 10)
                 || !strncmp(platformVersionName, "OpenCL 1.1", 10)
 				|| !strncmp(platformVersionName, "OpenCL 2.0", 10)
+				|| !strncmp(platformVersionName, "OpenCL 2.1", 10)
 #ifdef __APPLE__
                 || !strncmp(platformVersionName, "OpenCL 1.0", 10)
 #endif
