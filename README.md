@@ -17,3 +17,12 @@ Shared library in `.libs/libaparapi.dynlib` for osx and `.libs/libaparapi.so` fo
 To prepare a 32bit version on a 64bit Linux system simply run configure as:
 ./configure --build=i686-pc-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32"
 
+# OSX
+
+Make sure JAVA_HOME is set properly. One way to set it is as follows
+
+```bash
+$ nano -w ~/.bash_profile
+
+export JAVA_HOME=$(/usr/libexec/java_home)
+```

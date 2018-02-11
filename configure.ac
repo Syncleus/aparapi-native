@@ -9,7 +9,7 @@ AC_CANONICAL_HOST
 case $host_os in
   darwin* )
         AC_LDFLAGS="-framework OpenCL -version-info 3:1:2"
-	AC_CPPFLAGS="-Iinclude -I/opt/AMDAPP/SDK/include -Isrc/cpp -Isrc/cpp/runKernel -Isrc/cpp/invoke -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/usr/lib/jvm/java-8-openjdk-amd64/include -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux -I/usr/lib/jvm/java-8-oracle/include -I/usr/lib/jvm/java-8-oracle/include/linux -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/ -DCL_USE_DEPRECATED_OPENCL_1_1_APIS"
+	AC_CPPFLAGS="-Iinclude -I/opt/AMDAPP/SDK/include -Isrc/cpp -Isrc/cpp/runKernel -Isrc/cpp/invoke -I${JAVA_HOME}/include/darwin -I${JAVA_HOME}/include -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/ -DCL_USE_DEPRECATED_OPENCL_1_1_APIS"
         ;;
   mingw*)
         AC_LDFLAGS="-no-undefined -lOpenCL -version-info 3:1:2"
