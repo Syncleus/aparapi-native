@@ -1,5 +1,7 @@
 # Aparapi jni Change Log
 
+## 1.3.1
+
 ## 1.3.0
 
 * createProgram in Java had the wrong signature producing a unsatisfied link exception that is now fixed.
