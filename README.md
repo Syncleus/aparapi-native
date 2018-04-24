@@ -26,3 +26,17 @@ $ nano -w ~/.bash_profile
 
 export JAVA_HOME=$(/usr/libexec/java_home)
 ```
+
+# Windows
+
+So far we have only been able to compile the windows binary using Microsoft Visual Studios 2017.
+
+First open Git Bash and go to the project directory, make sure the project is up to date (git pull) and make sure the java submodule is updated (latest master).
+
+Next make sure the include directory is deleted if it already exists, then run "./prepare.sh" from within Git Bash.
+
+Open the project from MS Visual Studios, specifically the "Aparapi.sln" project file.
+
+From the drop down at the top select x64 or Win32 depending on which version you wish to compile, then build the solution.
+
+The DLL file will be in "Release/x64" for 64-bit or "Release" for 32-bit depending on the version you compile
