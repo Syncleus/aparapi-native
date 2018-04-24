@@ -48,7 +48,10 @@
 #include "AparapiBuffer.h"
 #include "CLHelper.h"
 #include "List.h"
+#include "Util.h"
 #include <algorithm>
+#include <string>
+#include <sstream>
 
 static const int PASS_ID_PREPARING_EXECUTION = -2;
 static const int PASS_ID_COMPLETED_EXECUTION = -1;
@@ -668,21 +671,54 @@ void processLocalBuffer(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, in
    cl_int status = CL_SUCCESS;
    // what if local buffer size has changed?  We need a check for resize here.
    if (jniContext->firstRun) {
-      status = arg->setLocalBufferArg(jenv, argIdx, argPos, config->isVerbose());
-      if(status != CL_SUCCESS) throw CLException(status,"clSetKernelArg() (local)");
+	  //To retrieve all fields of aparapiBuffer from Java for this local arg.
+	  arg->aparapiBuffer->flatten(jenv,arg);
+
+      status = arg->setLocalAparapiBufferArg(jenv, argIdx, argPos, config->isVerbose());
+      if(status != CL_SUCCESS) {
+    	  arg->aparapiBuffer->deleteBuffer(arg);
+    	  throw CLException(status,"clSetKernelArg() (local)");
+      }
 
       // Add the array length if needed
       if (arg->usesArrayLength()) {
-         arg->syncJavaArrayLength(jenv);
-
          for(int i = 0; i < arg->aparapiBuffer->numDims; i++)
          {
-             int length = arg->aparapiBuffer->lens[i];
-             status = clSetKernelArg(jniContext->kernel, argPos, sizeof(jint), &length);
-             if (config->isVerbose()){
-                fprintf(stderr, "runKernel arg %d %s, javaArrayLength = %d\n", argIdx, arg->name, length);
-             }
-             if(status != CL_SUCCESS) throw CLException(status,"clSetKernelArg (array length)");
+        	 if (arg->aparapiBuffer->lens == NULL) {
+				 std::string str = "runKernel arg " + patch::to_string(argIdx) + " " + arg->name +
+				 " - AparapiBuffer lens field is NULL at dim " + patch::to_string(i+1) + " of " +
+				 patch::to_string(arg->aparapiBuffer->numDims) + "\n";
+				 arg->aparapiBuffer->deleteBuffer(arg);
+				 throw CLException(CL_INVALID_VALUE, str.c_str());
+			  }
+			  int length = arg->aparapiBuffer->lens[i];
+			  argPos++;
+			  status = clSetKernelArg(jniContext->kernel, argPos, sizeof(cl_uint), &length);
+			  if(status != CL_SUCCESS) {
+				  arg->aparapiBuffer->deleteBuffer(arg);
+				  throw CLException(status,"clSetKernelArg (buffer length)");
+			  }
+			  if (config->isVerbose()){
+				 fprintf(stderr, "runKernel arg %d %s, length = %d\n", argIdx, arg->name, length);
+			  }
+
+			  if (arg->aparapiBuffer->offsets == NULL) {
+				 std::string str = "runKernel arg " + patch::to_string(argIdx) + " " + arg->name +
+				 " - AparapiBuffer offsets field is NULL at dim " + patch::to_string(i+1) + " of " +
+				 patch::to_string(arg->aparapiBuffer->numDims) + "\n";
+				 arg->aparapiBuffer->deleteBuffer(arg);
+				 throw CLException(CL_INVALID_VALUE, str.c_str());
+			  }
+			  int offset = arg->aparapiBuffer->offsets[i];
+			  argPos++;
+			  status = clSetKernelArg(jniContext->kernel, argPos, sizeof(cl_uint), &offset);
+			  if(status != CL_SUCCESS) {
+				  arg->aparapiBuffer->deleteBuffer(arg);
+				  throw CLException(status,"clSetKernelArg (buffer offset)");
+			  }
+			  if (config->isVerbose()){
+				 fprintf(stderr, "runKernel arg %d %s, offsets = %d\n", argIdx, arg->name, offset);
+			  }
          }
       }
    } else {
@@ -933,6 +969,14 @@ int getReadEvents(JNIEnv* jenv, JNIContext* jniContext) {
    cl_int status = CL_SUCCESS;
    for (int i=0; i< jniContext->argc; i++) {
       KernelArg *arg = jniContext->args[i];
+
+      if (arg->isLocal() && arg->isAparapiBuffer()) {
+    	  if (config->isVerbose()) {
+    		  fprintf(stderr, "Freeing local aparapi buffer for arg %d", arg->name);
+    	  }
+    	  arg->aparapiBuffer->deleteBuffer(arg);
+    	  continue;
+      }
 
       if (arg->needToEnqueueRead()){
          if (arg->isConstant()){
