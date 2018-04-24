@@ -1,4 +1,18 @@
-
+/**
+ * Copyright (c) 2016 - 2018 Syncleus, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #define CLASSTOOLS_CPP
 #include "classtools.h"
@@ -105,7 +119,7 @@ byte_t *ByteBuffer::getBytes(int _len){
    }
    memcpy((void*)buf, (void*)ptr, _len);
    ptr+=_len;
-   return(buf); 
+   return(buf);
 }
 
 
@@ -125,7 +139,7 @@ EmptyConstantPoolEntry::EmptyConstantPoolEntry(ByteBuffer *_byteBuffer, u4_t _sl
    :  ConstantPoolEntry(_byteBuffer, _slot, EMPTY) {
    }
 
-UTF8ConstantPoolEntry::UTF8ConstantPoolEntry(ByteBuffer *_byteBuffer, u4_t _slot) 
+UTF8ConstantPoolEntry::UTF8ConstantPoolEntry(ByteBuffer *_byteBuffer, u4_t _slot)
    : ConstantPoolEntry(_byteBuffer, _slot, UTF8) {
       len = (size_t)_byteBuffer->u2();
       utf8Bytes = _byteBuffer->getBytes(len);
@@ -529,13 +543,13 @@ bool isKernel(char *_className, ByteBuffer *_byteBuffer){
 #endif
                   slot+=1;
                break;
-            default: 
+            default:
                   fprintf(stdout, "ERROR found UNKNOWN! %02x/%0d in slot %d\n", constantPoolType, constantPoolType, slot );
                   exit (1);
          }
       }
 
-      // we have the constant pool 
+      // we have the constant pool
 
       u2_t accessFlags = _byteBuffer->u2();
 #ifdef SHOW
@@ -596,4 +610,3 @@ bool isKernel(char *_className, ByteBuffer *_byteBuffer){
    }
    return(isAKernel);
 }
-

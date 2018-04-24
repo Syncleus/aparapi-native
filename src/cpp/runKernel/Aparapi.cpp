@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2016 - 2018 Syncleus, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
    Copyright (c) 2010-2011, Advanced Micro Devices, Inc.
    All rights reserved.
@@ -6,34 +21,34 @@
    following conditions are met:
 
    Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-   disclaimer. 
+   disclaimer.
 
    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
-   disclaimer in the documentation and/or other materials provided with the distribution. 
+   disclaimer in the documentation and/or other materials provided with the distribution.
 
    Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
-   derived from this software without specific prior written permission. 
+   derived from this software without specific prior written permission.
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-   SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+   SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    If you use the software (in whole or in part), you shall adhere to all applicable U.S., European, and other export
-   laws, including but not limited to the U.S. Export Administration Regulations ("EAR"), (15 C.F.R. Sections 730 
+   laws, including but not limited to the U.S. Export Administration Regulations ("EAR"), (15 C.F.R. Sections 730
    through 774), and E.U. Council Regulation (EC) No 1334/2000 of 22 June 2000.  Further, pursuant to Section 740.6 of
    the EAR, you hereby certify that, except pursuant to a license granted by the United States Department of Commerce
-   Bureau of Industry and Security or as otherwise permitted pursuant to a License Exception under the U.S. Export 
-   Administration Regulations ("EAR"), you will not (1) export, re-export or release to a national of a country in 
-   Country Groups D:1, E:1 or E:2 any restricted technology, software, or source code you receive hereunder, or (2) 
+   Bureau of Industry and Security or as otherwise permitted pursuant to a License Exception under the U.S. Export
+   Administration Regulations ("EAR"), you will not (1) export, re-export or release to a national of a country in
+   Country Groups D:1, E:1 or E:2 any restricted technology, software, or source code you receive hereunder, or (2)
    export to Country Groups D:1, E:1 or E:2 the direct product of such technology or software, if such foreign produced
-   direct product is subject to national security controls as identified on the Commerce Control List (currently 
-   found in Supplement 1 to Part 774 of EAR).  For the most current Country Group listings, or for additional 
+   direct product is subject to national security controls as identified on the Commerce Control List (currently
+   found in Supplement 1 to Part 774 of EAR).  For the most current Country Group listings, or for additional
    information about the EAR or your obligations under those regulations, please refer to the U.S. Bureau of Industry
-   and Security?s website at http://www.bis.doc.gov/. 
+   and Security?s website at http://www.bis.doc.gov/.
    */
 
 #define APARAPI_SOURCE
@@ -60,14 +75,14 @@ static const int CANCEL_STATUS_TRUE = 1;
 
 //compiler dependant code
 /**
- * calls either clEnqueueMarker or clEnqueueMarkerWithWaitList 
+ * calls either clEnqueueMarker or clEnqueueMarkerWithWaitList
  * depending on the version of OpenCL installed.
  * convenience function so we don't have to have #ifdefs all over the code
  *
  * Actually I backed this out (Gary) when issue #123 was reported.  This involved
- * a build on a 1.2 compatible platform which failed on a platform with a 1.1 runtime. 
- * Failed to link. 
- * The answer is to set   -DCL_USE_DEPRECATED_OPENCL_1_1_APIS at compile time and *not* use 
+ * a build on a 1.2 compatible platform which failed on a platform with a 1.1 runtime.
+ * Failed to link.
+ * The answer is to set   -DCL_USE_DEPRECATED_OPENCL_1_1_APIS at compile time and *not* use
  * the CL_VERSION_1_2 ifdef.
  */
 int enqueueMarker(cl_command_queue commandQueue, cl_event* firstEvent) {
@@ -130,7 +145,7 @@ jint writeProfileInfo(JNIContext* jniContext){
 
    if (jniContext->firstRun) {
       fprintf(jniContext->profileFile, "# PROFILE Name, queued, submit, start, end (microseconds)\n");
-   }       
+   }
 
    // A read by a user kernel means the OpenCL layer wrote to the kernel and vice versa
    for (int i=0; i< jniContext->argc; i++){
@@ -140,10 +155,10 @@ jint writeProfileInfo(JNIContext* jniContext){
          // Initialize the base time for this sample
          if (currSampleBaseTime == -1) {
             currSampleBaseTime = arg->arrayBuffer->write.queued;
-         } 
+         }
          fprintf(jniContext->profileFile, "%d write %s,", pos++, arg->name);
 
-         fprintf(jniContext->profileFile, "%lu,%lu,%lu,%lu,",  
+         fprintf(jniContext->profileFile, "%lu,%lu,%lu,%lu,",
         	(unsigned long)(arg->arrayBuffer->write.queued - currSampleBaseTime)/1000,
         	(unsigned long)(arg->arrayBuffer->write.submit - currSampleBaseTime)/1000,
         	(unsigned long)(arg->arrayBuffer->write.start - currSampleBaseTime)/1000,
@@ -156,22 +171,22 @@ jint writeProfileInfo(JNIContext* jniContext){
       // Initialize the base time for this sample if necessary
       if (currSampleBaseTime == -1) {
          currSampleBaseTime = jniContext->exec[pass].queued;
-      } 
+      }
 
-      // exec 
+      // exec
       fprintf(jniContext->profileFile, "%d exec[%d],", pos++, pass);
 
-      fprintf(jniContext->profileFile, "%lu,%lu,%lu,%lu,",  
+      fprintf(jniContext->profileFile, "%lu,%lu,%lu,%lu,",
             (unsigned long)(jniContext->exec[pass].queued - currSampleBaseTime)/1000,
             (unsigned long)(jniContext->exec[pass].submit - currSampleBaseTime)/1000,
             (unsigned long)(jniContext->exec[pass].start - currSampleBaseTime)/1000,
             (unsigned long)(jniContext->exec[pass].end - currSampleBaseTime)/1000);
    }
 
-   // 
+   //
    if ( jniContext->argc == 0 ) {
       fprintf(jniContext->profileFile, "\n");
-   } else { 
+   } else {
       for (int i=0; i< jniContext->argc; i++){
          KernelArg *arg=jniContext->args[i];
          if (arg->isBackedByArray() && arg->isMutableByKernel()){
@@ -183,7 +198,7 @@ jint writeProfileInfo(JNIContext* jniContext){
 
             fprintf(jniContext->profileFile, "%d read %s,", pos++, arg->name);
 
-            fprintf(jniContext->profileFile, "%lu,%lu,%lu,%lu,",  
+            fprintf(jniContext->profileFile, "%lu,%lu,%lu,%lu,",
             	(unsigned long)(arg->arrayBuffer->read.queued - currSampleBaseTime)/1000,
             	(unsigned long)(arg->arrayBuffer->read.submit - currSampleBaseTime)/1000,
             	(unsigned long)(arg->arrayBuffer->read.start - currSampleBaseTime)/1000,
@@ -233,9 +248,9 @@ cl_int profile(ProfileInfo *profileInfo, cl_event *event, jint type, char* name,
 /**
  * Step through all non-primitive (arrays) args
  * and determine if the field has changed
- * The field may have been re-assigned by the Java code to NULL or another instance. 
+ * The field may have been re-assigned by the Java code to NULL or another instance.
  * If we detect a change then we discard the previous cl_mem buffer,
- * the caller will detect that the buffers are null and will create new cl_mem buffers. 
+ * the caller will detect that the buffers are null and will create new cl_mem buffers.
  * @param jenv the java environment
  * @param jobj the object we might be updating
  * @param jniContext the context we're working in
@@ -245,7 +260,7 @@ cl_int profile(ProfileInfo *profileInfo, cl_event *event, jint type, char* name,
 jint updateNonPrimitiveReferences(JNIEnv *jenv, jobject jobj, JNIContext* jniContext) {
    cl_int status = CL_SUCCESS;
    if (jniContext != NULL){
-      for (jint i = 0; i < jniContext->argc; i++){ 
+      for (jint i = 0; i < jniContext->argc; i++){
          KernelArg *arg = jniContext->args[i];
 
          // make sure that the JNI arg reflects the latest type info from the instance.
@@ -262,18 +277,18 @@ jint updateNonPrimitiveReferences(JNIEnv *jenv, jobject jobj, JNIContext* jniCon
             // Following used for all primitive arrays, object arrays and nio Buffers
             jarray newRef = (jarray)jenv->GetObjectField(arg->javaArg, KernelArg::javaArrayFieldID);
             if (config->isVerbose()){
-               fprintf(stderr, "testing for Resync javaArray %s: old=%p, new=%p\n", arg->name, arg->arrayBuffer->javaArray, newRef);         
+               fprintf(stderr, "testing for Resync javaArray %s: old=%p, new=%p\n", arg->name, arg->arrayBuffer->javaArray, newRef);
             }
 
             if (!jenv->IsSameObject(newRef, arg->arrayBuffer->javaArray)) {
                if (config->isVerbose()){
-                  fprintf(stderr, "Resync javaArray for %s: %p  %p\n", arg->name, newRef, arg->arrayBuffer->javaArray);         
+                  fprintf(stderr, "Resync javaArray for %s: %p  %p\n", arg->name, newRef, arg->arrayBuffer->javaArray);
                }
                // Free previous ref if any
                if (arg->arrayBuffer->javaArray != NULL) {
                   jenv->DeleteWeakGlobalRef((jweak) arg->arrayBuffer->javaArray);
                   if (config->isVerbose()){
-                     fprintf(stderr, "DeleteWeakGlobalRef for %s: %p\n", arg->name, arg->arrayBuffer->javaArray);         
+                     fprintf(stderr, "DeleteWeakGlobalRef for %s: %p\n", arg->name, arg->arrayBuffer->javaArray);
                   }
                }
 
@@ -297,7 +312,7 @@ jint updateNonPrimitiveReferences(JNIEnv *jenv, jobject jobj, JNIContext* jniCon
                   arg->arrayBuffer->javaArray = (jarray)jenv->NewWeakGlobalRef((jarray)newRef);
                   if (config->isVerbose()){
                      fprintf(stderr, "NewWeakGlobalRef for %s, set to %p\n", arg->name,
-                           arg->arrayBuffer->javaArray);         
+                           arg->arrayBuffer->javaArray);
                   }
                } else {
                   arg->arrayBuffer->javaArray = NULL;
@@ -362,11 +377,11 @@ void updateArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argP
       if (mask & CL_MEM_READ_ONLY) strcat(arg->arrayBuffer->memSpec,"|CL_MEM_READ_ONLY");
       if (mask & CL_MEM_WRITE_ONLY) strcat(arg->arrayBuffer->memSpec,"|CL_MEM_WRITE_ONLY");
 
-      fprintf(stderr, "%s %d clCreateBuffer(context, %s, size=%08lx bytes, address=%p, &status)\n", arg->name, 
+      fprintf(stderr, "%s %d clCreateBuffer(context, %s, size=%08lx bytes, address=%p, &status)\n", arg->name,
             argIdx, arg->arrayBuffer->memSpec, (unsigned long)arg->arrayBuffer->lengthInBytes, arg->arrayBuffer->addr);
    }
 
-   arg->arrayBuffer->mem = clCreateBuffer(jniContext->context, arg->arrayBuffer->memMask, 
+   arg->arrayBuffer->mem = clCreateBuffer(jniContext->context, arg->arrayBuffer->memMask,
          arg->arrayBuffer->lengthInBytes, arg->arrayBuffer->addr, &status);
 
    if(status != CL_SUCCESS) throw CLException(status,"clCreateBuffer");
@@ -402,7 +417,7 @@ void updateBuffer(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& arg
    else if (arg->isMutableByKernel()) mask |= CL_MEM_WRITE_ONLY;
    buffer->memMask = mask;
 
-   buffer->mem = clCreateBuffer(jniContext->context, buffer->memMask, 
+   buffer->mem = clCreateBuffer(jniContext->context, buffer->memMask,
          buffer->lengthInBytes, buffer->data, &status);
 
    if(status != CL_SUCCESS) throw CLException(status,"clCreateBuffer");
@@ -473,7 +488,7 @@ void processArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& arg
 
    if (config->isVerbose()) {
       fprintf(stderr, "runKernel: array ref %p, oldAddr=%p, newAddr=%p, ref.mem=%p isCopy=%s\n",
-            arg->arrayBuffer->javaArray, 
+            arg->arrayBuffer->javaArray,
             prevAddr,
             arg->arrayBuffer->addr,
             arg->arrayBuffer->mem,
@@ -486,7 +501,7 @@ void processArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& arg
       fprintf(stderr, "\n" );
    }
 
-   // record whether object moved 
+   // record whether object moved
    // if we see that isCopy was returned by getPrimitiveArrayCritical, treat that as a move
    bool objectMoved = (arg->arrayBuffer->addr != prevAddr) || arg->arrayBuffer->isCopy;
 
@@ -498,7 +513,7 @@ void processArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& arg
 
    if (jniContext->firstRun || (arg->arrayBuffer->mem == 0) || objectMoved ){
       if (arg->arrayBuffer->mem != 0 && objectMoved) {
-         // we need to release the old buffer 
+         // we need to release the old buffer
          if (config->isTrackingOpenCLResources()) {
             memList.remove((cl_mem)arg->arrayBuffer->mem, __LINE__, __FILE__);
          }
@@ -585,7 +600,7 @@ void updateWriteEvents(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int
 
    cl_int status = CL_SUCCESS;
 
-   // we only enqueue a write if we know the kernel actually reads the buffer 
+   // we only enqueue a write if we know the kernel actually reads the buffer
    // or if there is an explicit write pending
    // the default behavior for Constant buffers is also that there is no write enqueued unless explicit
 
@@ -594,10 +609,10 @@ void updateWriteEvents(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int
    }
 
    if(arg->isArray()) {
-      status = clEnqueueWriteBuffer(jniContext->commandQueue, arg->arrayBuffer->mem, CL_FALSE, 0, 
+      status = clEnqueueWriteBuffer(jniContext->commandQueue, arg->arrayBuffer->mem, CL_FALSE, 0,
          arg->arrayBuffer->lengthInBytes, arg->arrayBuffer->addr, 0, NULL, &(jniContext->writeEvents[writeEventCount]));
    } else if(arg->isAparapiBuffer()) {
-      status = clEnqueueWriteBuffer(jniContext->commandQueue, arg->aparapiBuffer->mem, CL_FALSE, 0, 
+      status = clEnqueueWriteBuffer(jniContext->commandQueue, arg->aparapiBuffer->mem, CL_FALSE, 0,
          arg->aparapiBuffer->lengthInBytes, arg->aparapiBuffer->data, 0, NULL, &(jniContext->writeEvents[writeEventCount]));
    }
    if(status != CL_SUCCESS) throw CLException(status,"clEnqueueWriteBuffer");
@@ -749,7 +764,7 @@ int processArgs(JNIEnv* jenv, JNIContext* jniContext, int& argPos, int& writeEve
 
    cl_int status = CL_SUCCESS;
 
-   // argPos is used to keep track of the kernel arg position, it can 
+   // argPos is used to keep track of the kernel arg position, it can
    // differ from "argIdx" due to insertion of javaArrayLength args which are not
    // fields read from the kernel object.
    for (int argIdx = 0; argIdx < jniContext->argc; argIdx++, argPos++) {
@@ -769,10 +784,10 @@ int processArgs(JNIEnv* jenv, JNIContext* jniContext, int& argPos, int& writeEve
 
           if (arg->needToEnqueueWrite() && (!arg->isConstant() || arg->isExplicitWrite())) {
               if (config->isVerbose()) {
-                  fprintf(stderr, "%swriting %s%sbuffer argIndex=%d argPos=%d %s\n",  
-                        (arg->isExplicit() ? "explicitly " : ""), 
-                        (arg->isConstant() ? "constant " : ""), 
-                        (arg->isLocal() ? "local " : ""), 
+                  fprintf(stderr, "%swriting %s%sbuffer argIndex=%d argPos=%d %s\n",
+                        (arg->isExplicit() ? "explicitly " : ""),
+                        (arg->isConstant() ? "constant " : ""),
+                        (arg->isLocal() ? "local " : ""),
                         argIdx,
                         argPos,
                         arg->name);
@@ -802,7 +817,7 @@ int processArgs(JNIEnv* jenv, JNIContext* jniContext, int& argPos, int& writeEve
  * @throws CLException
  */
 void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos, int writeEventCount){
-   // We will need to revisit the execution of multiple devices.  
+   // We will need to revisit the execution of multiple devices.
    // POssibly cloning the range per device and mutating each to handle a unique subrange (of global) and
    // maybe even pushing the offset into the range class.
 
@@ -816,7 +831,7 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
    if (jniContext->exec) {
       delete jniContext->exec;
       jniContext->exec = NULL;
-   } 
+   }
    jniContext->passes = passes;
    jniContext->exec = new ProfileInfo[passes];
 
@@ -828,7 +843,7 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
 
    cl_int status = CL_SUCCESS;
    for (int passid=0; passid < passes; passid++) {
-	   
+
 	   int cancelCode = kernelInBytesAsInts[0];
 	   kernelOutBytesAsInts[0] = passid;
 
@@ -850,7 +865,7 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
 
 
       // -----------
-      // fix for Mac OSX CPU driver (and possibly others) 
+      // fix for Mac OSX CPU driver (and possibly others)
       // which fail to give correct maximum work group info
       // while using clGetDeviceInfo
       // see: http://www.openwall.com/lists/john-dev/2012/04/10/4
@@ -860,7 +875,7 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
                                         CL_KERNEL_WORK_GROUP_SIZE,
                                         sizeof(max_group_size),
                                         &max_group_size, NULL);
-      
+
       if (status != CL_SUCCESS) {
          CLException(status, "clGetKernelWorkGroupInfo()").printError();
       } else {
@@ -868,10 +883,10 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
       }
       // ------ end fix
 
-        
+
       // two options here due to passid
       // there may be 1 or more passes
-      // enqueue depends on write enqueues 
+      // enqueue depends on write enqueues
       // we don't block but and we populate the executeEvents
       if (passid == 0) {
 
@@ -880,13 +895,13 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
             writeEvents = jniContext->writeEvents;
          }
 
-      // we are in some passid > 0 pass 
+      // we are in some passid > 0 pass
       // maybe middle or last!
       // we don't depend on write enqueues
-      // we block and do supply executeEvents 
+      // we block and do supply executeEvents
       } else {
          //fprintf(stderr, "setting passid to %d of %d not first not last\n", passid, passes);
-         
+
          status = clWaitForEvents(1, &jniContext->executeEvents[0]);
          if (status != CL_SUCCESS) throw CLException(status, "clWaitForEvents() execute event");
 
@@ -900,7 +915,7 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
          // We must capture any profile info for passid-1  so we must wait for the last execution to complete
          if (passid == 1 && config->isProfilingEnabled()) {
 
-            // Now we can profile info for passid-1 
+            // Now we can profile info for passid-1
             status = profile(&jniContext->exec[passid-1], &jniContext->executeEvents[0], 1, NULL, jniContext->profileBaseTime);
             if (status != CL_SUCCESS) throw CLException(status,"");
          }
@@ -930,7 +945,7 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
       if(config->isTrackingOpenCLResources()){
          executeEventList.add(jniContext->executeEvents[0],__LINE__, __FILE__);
       }
-    
+
    }
    kernelOutBytesAsInts[0] = PASS_ID_COMPLETED_EXECUTION;
 }
@@ -938,7 +953,7 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
 
 /**
  * set readEvents and readArgEvents
- * readEvents[] will be populated with the event's that we will wait on below.  
+ * readEvents[] will be populated with the event's that we will wait on below.
  * readArgEvents[] will map the readEvent to the arg that originated it
  * So if we had
  *     arg[0]  read_write array
@@ -957,14 +972,14 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
  *
  * @param jniContext the context we got from Java
  *
- * @return number of reads. 
+ * @return number of reads.
  * It will never be > jniContext->argc which is the size of readEvents[] and readEventArgs[]
  *
  * @throws CLException
  */
 int getReadEvents(JNIEnv* jenv, JNIContext* jniContext) {
 
-   int readEventCount = 0; 
+   int readEventCount = 0;
 
    cl_int status = CL_SUCCESS;
    for (int i=0; i< jniContext->argc; i++) {
@@ -990,12 +1005,12 @@ int getReadEvents(JNIEnv* jenv, JNIContext* jniContext) {
          }
 
          if(arg->isArray()) {
-            status = clEnqueueReadBuffer(jniContext->commandQueue, arg->arrayBuffer->mem, 
-                CL_FALSE, 0, arg->arrayBuffer->lengthInBytes, arg->arrayBuffer->addr, 1, 
+            status = clEnqueueReadBuffer(jniContext->commandQueue, arg->arrayBuffer->mem,
+                CL_FALSE, 0, arg->arrayBuffer->lengthInBytes, arg->arrayBuffer->addr, 1,
                 jniContext->executeEvents, &(jniContext->readEvents[readEventCount]));
          } else if(arg->isAparapiBuffer()) {
-            status = clEnqueueReadBuffer(jniContext->commandQueue, arg->aparapiBuffer->mem, 
-                CL_TRUE, 0, arg->aparapiBuffer->lengthInBytes, arg->aparapiBuffer->data, 1, 
+            status = clEnqueueReadBuffer(jniContext->commandQueue, arg->aparapiBuffer->mem,
+                CL_TRUE, 0, arg->aparapiBuffer->lengthInBytes, arg->aparapiBuffer->data, 1,
                 jniContext->executeEvents, &(jniContext->readEvents[readEventCount]));
             arg->aparapiBuffer->inflate(jenv, arg);
          }
@@ -1025,7 +1040,7 @@ void waitForReadEvents(JNIContext* jniContext, int readEventCount, int passes) {
    // don't change the order here
    // We wait for the reads which each depend on the execution, which depends on the writes ;)
    // So after the reads have completed, we can release the execute and writes.
-   
+
    cl_int status = CL_SUCCESS;
 
    if (readEventCount > 0){
@@ -1106,10 +1121,10 @@ void checkEvents(JNIEnv* jenv, JNIContext* jniContext, int writeEventCount) {
    if (config->isTrackingOpenCLResources()){
       fprintf(stderr, "following execution of kernel{\n");
       commandQueueList.report(stderr);
-      memList.report(stderr); 
-      readEventList.report(stderr); 
-      executeEventList.report(stderr); 
-      writeEventList.report(stderr); 
+      memList.report(stderr);
+      readEventList.report(stderr);
+      executeEventList.report(stderr);
+      writeEventList.report(stderr);
       fprintf(stderr, "}\n");
    }
 
@@ -1183,7 +1198,7 @@ JNI_JAVA(jint, KernelRunnerJNI, runKernelJNI)
    }
 
 
-// we return the JNIContext from here 
+// we return the JNIContext from here
 JNI_JAVA(jlong, KernelRunnerJNI, initJNI)
    (JNIEnv *jenv, jobject jobj, jobject kernelObject, jobject openCLDeviceObject, jint flags) {
       if (openCLDeviceObject == NULL){
@@ -1210,7 +1225,7 @@ void writeProfile(JNIEnv* jenv, JNIContext* jniContext) {
    // timestamp
    // kernel name
 
-   jclass classMethodAccess = jenv->FindClass("java/lang/Class"); 
+   jclass classMethodAccess = jenv->FindClass("java/lang/Class");
    jmethodID getNameID = jenv->GetMethodID(classMethodAccess,"getName","()Ljava/lang/String;");
    jstring className = (jstring)jenv->CallObjectMethod(jniContext->kernelClass, getNameID);
    const char *classNameChars = jenv->GetStringUTFChars(className, NULL);
@@ -1280,7 +1295,7 @@ JNI_JAVA(jlong, KernelRunnerJNI, buildProgramJNI)
          cle.printError();
          return 0;
       }
-      
+
 
       return((jlong)jniContext);
    }
@@ -1294,13 +1309,13 @@ JNI_JAVA(jint, KernelRunnerJNI, setArgsJNI)
       }
       JNIContext* jniContext = JNIContext::getJNIContext(jniContextHandle);
       cl_int status = CL_SUCCESS;
-      if (jniContext != NULL){      
+      if (jniContext != NULL){
          jniContext->argc = argc;
          jniContext->args = new KernelArg*[jniContext->argc];
          jniContext->firstRun = true;
 
          // Step through the array of KernelArg's to capture the type data for the Kernel's data members.
-         for (jint i = 0; i < jniContext->argc; i++){ 
+         for (jint i = 0; i < jniContext->argc; i++){
             jobject argObj = jenv->GetObjectArrayElement(argArray, i);
             KernelArg* arg = jniContext->args[i] = new KernelArg(jenv, jniContext, argObj);
             if (config->isVerbose()){
@@ -1375,7 +1390,7 @@ KernelArg* getArgForBuffer(JNIEnv* jenv, JNIContext* jniContext, jobject buffer)
    KernelArg *returnArg = NULL;
 
    if (jniContext != NULL){
-      for (jint i = 0; returnArg == NULL && i < jniContext->argc; i++){ 
+      for (jint i = 0; returnArg == NULL && i < jniContext->argc; i++){
          KernelArg *arg = jniContext->args[i];
          if (arg->isArray()) {
             jboolean isSame = jenv->IsSameObject(buffer, arg->arrayBuffer->javaArray);
@@ -1430,14 +1445,14 @@ JNI_JAVA(jint, KernelRunnerJNI, getJNI)
                arg->pin(jenv);
 
                try {
-                  status = clEnqueueReadBuffer(jniContext->commandQueue, arg->arrayBuffer->mem, 
-                                               CL_FALSE, 0, 
+                  status = clEnqueueReadBuffer(jniContext->commandQueue, arg->arrayBuffer->mem,
+                                               CL_FALSE, 0,
                                                arg->arrayBuffer->lengthInBytes,
-                                               arg->arrayBuffer->addr , 0, NULL, 
+                                               arg->arrayBuffer->addr , 0, NULL,
                                                &jniContext->readEvents[0]);
                   if (config->isVerbose()){
-                     fprintf(stderr, "explicitly read %s ptr=%p len=%d\n", 
-                             arg->name, arg->arrayBuffer->addr, 
+                     fprintf(stderr, "explicitly read %s ptr=%p len=%d\n",
+                             arg->name, arg->arrayBuffer->addr,
                              arg->arrayBuffer->lengthInBytes );
                   }
                   if (status != CL_SUCCESS) throw CLException(status, "clEnqueueReadBuffer()");
@@ -1454,7 +1469,7 @@ JNI_JAVA(jint, KernelRunnerJNI, getJNI)
                   status = clReleaseEvent(jniContext->readEvents[0]);
                   if (status != CL_SUCCESS) throw CLException(status, "clReleaseEvent() read event");
 
-                  // since this is an explicit buffer get, 
+                  // since this is an explicit buffer get,
                   // we expect the buffer to have changed so we commit
                   arg->unpin(jenv); // was unpinCommit
 
@@ -1466,14 +1481,14 @@ JNI_JAVA(jint, KernelRunnerJNI, getJNI)
             } else if(arg->isAparapiBuffer()) {
 
                try {
-                  status = clEnqueueReadBuffer(jniContext->commandQueue, arg->aparapiBuffer->mem, 
-                                               CL_FALSE, 0, 
+                  status = clEnqueueReadBuffer(jniContext->commandQueue, arg->aparapiBuffer->mem,
+                                               CL_FALSE, 0,
                                                arg->aparapiBuffer->lengthInBytes,
-                                               arg->aparapiBuffer->data, 0, NULL, 
+                                               arg->aparapiBuffer->data, 0, NULL,
                                                &jniContext->readEvents[0]);
                   if (config->isVerbose()){
-                     fprintf(stderr, "explicitly read %s ptr=%p len=%d\n", 
-                             arg->name, arg->aparapiBuffer->data, 
+                     fprintf(stderr, "explicitly read %s ptr=%p len=%d\n",
+                             arg->name, arg->aparapiBuffer->data,
                              arg->aparapiBuffer->lengthInBytes );
                   }
                   if (status != CL_SUCCESS) throw CLException(status, "clEnqueueReadBuffer()");
@@ -1484,7 +1499,7 @@ JNI_JAVA(jint, KernelRunnerJNI, getJNI)
                   if (config->isProfilingEnabled()) {
                      status = profile(&arg->aparapiBuffer->read, &jniContext->readEvents[0], 0,
                                       arg->name, jniContext->profileBaseTime);
-                     if (status != CL_SUCCESS) throw CLException(status, "profile "); 
+                     if (status != CL_SUCCESS) throw CLException(status, "profile ");
                   }
 
                   status = clReleaseEvent(jniContext->readEvents[0]);
@@ -1519,7 +1534,7 @@ JNI_JAVA(jobject, KernelRunnerJNI, getProfileInfoJNI)
          returnList = JNIHelper::createInstance(jenv, ArrayListClass, VoidReturn );
          if (config->isProfilingEnabled()){
 
-            for (jint i = 0; i < jniContext->argc; i++){ 
+            for (jint i = 0; i < jniContext->argc; i++){
                KernelArg *arg = jniContext->args[i];
                if (arg->isArray()){
                   if (arg->isMutableByKernel() && arg->arrayBuffer->write.valid){
@@ -1534,7 +1549,7 @@ JNI_JAVA(jobject, KernelRunnerJNI, getProfileInfoJNI)
                JNIHelper::callVoid(jenv, returnList, "add", ArgsBooleanReturn(ObjectClassArg), executeProfileInfo);
             }
 
-            for (jint i = 0; i < jniContext->argc; i++){ 
+            for (jint i = 0; i < jniContext->argc; i++){
                KernelArg *arg = jniContext->args[i];
                if (arg->isArray()){
                   if (arg->isReadByKernel() && arg->arrayBuffer->read.valid){
@@ -1547,4 +1562,3 @@ JNI_JAVA(jobject, KernelRunnerJNI, getProfileInfoJNI)
       }
       return returnList;
    }
-
