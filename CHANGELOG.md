@@ -2,6 +2,8 @@
 
 ## 1.3.1
 
+* Fixed JVM crash with multi-dimensional arrays in Local memory (2D and 3D local arrays are now supported)
+
 ## 1.3.0
 
 * createProgram in Java had the wrong signature producing a unsatisfied link exception that is now fixed.

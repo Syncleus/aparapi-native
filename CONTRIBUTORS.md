@@ -9,6 +9,7 @@
 * Steven Libby
 * Paul Miner
 * Lorenzo Gallucci
+* Luis Mendes <luis.p.mendes@gmail.com>
 
 # Details
 
@@ -26,3 +27,4 @@ Below are some of the specific details of various contributions.
 * Steven Libby and Ryan Lamothe for #10 (Support for OpenMP, major refactoring cleanup and support for multidim arrays) March 28th 2013
 * Paul Miner issue #61 and #115 (JTP Speed up and fixes to explicit puts) June 13th 2013
 & lgalluci for his fix for issue #121 (incorrect toString for 3D ranges) July 6th 2013
+* Luis Mendes Issue #51 JVM crash when using multi-dimensional local arrays (refs #51)
