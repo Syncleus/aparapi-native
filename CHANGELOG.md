@@ -1,5 +1,9 @@
 # Aparapi jni Change Log
 
+## 1.3.2
+
+* Fixed local arrays handling 1D and ND, to cope with arrays resizing across kernel executions
+
 ## 1.3.1
 
 * Fixed JVM crash with multi-dimensional arrays in Local memory (2D and 3D local arrays are now supported)

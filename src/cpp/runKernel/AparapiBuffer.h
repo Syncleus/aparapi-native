@@ -72,20 +72,28 @@ private:
 
    void buildBuffer(void* _data, cl_uint* _dims, cl_uint _numDims, long _lengthInBytes, jobject _javaObject);
 
+   void computeOffsets();
+
 public:
-      jobject javaObject;       // The java array that this arg is mapped to 
-      cl_uint numDims;          // number of dimensions of the object (array lengths for ND arrays)
-      cl_uint* offsets;         // offsets of the next element in ND arrays)
-      cl_uint* lens;            // sizes of dimensions of the object (array lengths for ND arrays)
-      jint lengthInBytes;       // bytes in the array or directBuf
-      cl_mem mem;               // the opencl buffer 
-      void *data;               // a copy of the object itself (this is what we pass to OpenCL)
-      cl_uint memMask;          // the mask used for createBuffer
+   	  static int const MAX_ND_DIMS = 3;
+
+      jobject javaObject;           // The java array that this arg is mapped to
+      cl_uint numDims;              // number of dimensions of the object (array lengths for ND arrays)
+      cl_uint offsets[MAX_ND_DIMS]; // offsets of the next element in ND arrays) - Aparapi currently limits ND arrays to 3 dimensions
+      cl_uint lens[MAX_ND_DIMS];    // sizes of dimensions of the object (array lengths for ND arrays)
+      jint lengthInBytes;           // bytes in the array or directBuf
+      cl_mem mem;                   // the opencl buffer
+      void *data;                   // a copy of the object itself (this is what we pass to OpenCL)
+      cl_uint memMask;              // the mask used for createBuffer
       ProfileInfo read;
       ProfileInfo write;
 
       AparapiBuffer();
       AparapiBuffer(void* _data, cl_uint* _dims, cl_uint _numDims, long _lengthInBytes, jobject _javaObject);
+
+      void getMinimalParams(JNIEnv *env, KernelArg* arg, cl_uint &numDims, cl_uint dims[], int &lengthInBytes) const;
+
+      void syncMinimalParams(JNIEnv *env, KernelArg* arg);
 
       void deleteBuffer(KernelArg* arg);
 
@@ -129,7 +137,7 @@ public:
       void inflateFloat3D(JNIEnv *env, KernelArg* arg);
       void inflateDouble3D(JNIEnv *env, KernelArg* arg);
 
-      jobject getJavaObject(JNIEnv* env, KernelArg* arg);
+      jobject getJavaObject(JNIEnv* env, KernelArg* arg) const;
 };
 
 #endif // ARRAYBUFFER_H

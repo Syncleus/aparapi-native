@@ -42,35 +42,67 @@
 AparapiBuffer::AparapiBuffer():
    javaObject((jobject) 0),
    numDims(0),
-   offsets(NULL),
    lengthInBytes(0),
    mem((cl_mem) 0),
    data(NULL),
    memMask((cl_uint)0) {
+      for (int i = 0; i < MAX_ND_DIMS; i++) {
+    	  lens[i] = (cl_uint)0;
+    	  offsets[i] = (cl_uint)0;
+      }
    }
 
 AparapiBuffer::AparapiBuffer(void* _data, cl_uint* _lens, cl_uint _numDims, long _lengthInBytes, jobject _javaObject) :
    data(_data),
-   lens(_lens),
    numDims(_numDims),
    lengthInBytes(_lengthInBytes),
    javaObject(_javaObject),
    mem((cl_mem) 0),
    memMask((cl_uint)0)
 {
-   offsets = new cl_uint[_numDims];
    for(int i = 0; i < _numDims; i++) {
-      offsets[i] = 1;
-      for(int j = i+1; j < _numDims; j++) {
-         offsets[i] *= lens[j];
-      }
+	   lens[i] = _lens[i];
+   }
+   computeOffsets();
+}
+
+void AparapiBuffer::computeOffsets() {
+   for(int i = 0; i < numDims; i++) {
+	  offsets[i] = 1;
+	  for(int j = i+1; j < numDims; j++) {
+		 offsets[i] *= lens[j];
+	  }
    }
 }
 
-jobject AparapiBuffer::getJavaObject(JNIEnv* env, KernelArg* arg) {
+jobject AparapiBuffer::getJavaObject(JNIEnv* env, KernelArg* arg) const {
    return JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
 }
 
+void AparapiBuffer::getMinimalParams(JNIEnv *env, KernelArg* arg, cl_uint &numDims, cl_uint dims[], int &lengthInBytes) const {
+	numDims = JNIHelper::getInstanceField<jint>(env, arg->javaArg, "numDims", IntArg);
+	jobjectArray jObjArray = (jobjectArray)getJavaObject(env, arg);
+	for (int i = 0; i < numDims; i++) {
+		dims[i] = env->GetArrayLength((jobjectArray)jObjArray);
+		if (i < numDims - 1) {
+			jObjArray = (jobjectArray)env->GetObjectArrayElement(jObjArray, 0);
+		}
+	}
+	lengthInBytes = env->GetIntField(arg->javaArg, KernelArg::getSizeInBytesFieldID());
+}
+
+void AparapiBuffer::syncMinimalParams(JNIEnv *env, KernelArg* arg) {
+	numDims = JNIHelper::getInstanceField<jint>(env, arg->javaArg, "numDims", IntArg);
+	jobjectArray jObjArray = (jobjectArray)getJavaObject(env, arg);
+	for (int i = 0; i < numDims; i++) {
+		lens[i] = env->GetArrayLength((jobjectArray)jObjArray);
+		if (i < numDims - 1) {
+			jObjArray = (jobjectArray)env->GetObjectArrayElement(jObjArray, 0);
+		}
+	}
+	lengthInBytes = env->GetIntField(arg->javaArg, KernelArg::getSizeInBytesFieldID());
+	computeOffsets();
+}
 
 void AparapiBuffer::flatten(JNIEnv* env, KernelArg* arg) {
    int numDims = JNIHelper::getInstanceField<jint>(env, arg->javaArg, "numDims", IntArg);
@@ -110,24 +142,20 @@ void AparapiBuffer::flatten(JNIEnv* env, KernelArg* arg) {
 
 void AparapiBuffer::buildBuffer(void* _data, cl_uint* _dims, cl_uint _numDims, long _lengthInBytes, jobject _javaObject) {
    data = _data;
-   lens = _dims;
    numDims = _numDims;
    lengthInBytes = _lengthInBytes;
    javaObject = _javaObject;
-   offsets = new cl_uint[_numDims];
    for(int i = 0; i < _numDims; i++) {
-      offsets[i] = 1;
-      for(int j = i+1; j < _numDims; j++) {
-         offsets[i] *= lens[j];
-      }
+	  lens[i] = _dims[i];
    }
+   computeOffsets();
 }
 
 
 void AparapiBuffer::flattenBoolean2D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[2];
+   cl_uint dims[2];
    dims[0] = env->GetArrayLength((jobjectArray)javaBuffer);
    dims[1] = env->GetArrayLength((jbooleanArray)env->GetObjectArrayElement((jobjectArray)javaBuffer, 0));
    int totalSize = dims[0] * dims[1];
@@ -169,13 +197,13 @@ void AparapiBuffer::flattenBoolean2D(JNIEnv* env, KernelArg* arg) {
       // env->DeleteLocalRef(jArray);
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 2, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenByte2D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[2];
+   cl_uint dims[2];
    dims[0] = env->GetArrayLength((jobjectArray)javaBuffer);
    dims[1] = env->GetArrayLength((jbyteArray)env->GetObjectArrayElement((jobjectArray)javaBuffer, 0));
    int totalSize = dims[0] * dims[1];
@@ -215,13 +243,13 @@ void AparapiBuffer::flattenByte2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseByteArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 2, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenShort2D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[2];
+   cl_uint dims[2];
    dims[0] = env->GetArrayLength((jobjectArray)javaBuffer);
    dims[1] = env->GetArrayLength((jshortArray)env->GetObjectArrayElement((jobjectArray)javaBuffer, 0));
    int totalSize = dims[0] * dims[1];
@@ -261,13 +289,13 @@ void AparapiBuffer::flattenShort2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseShortArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 2, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenInt2D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[2];
+   cl_uint dims[2];
    dims[0] = env->GetArrayLength((jobjectArray)javaBuffer);
    dims[1] = env->GetArrayLength((jintArray)env->GetObjectArrayElement((jobjectArray)javaBuffer, 0));
    int totalSize = dims[0] * dims[1];
@@ -307,13 +335,13 @@ void AparapiBuffer::flattenInt2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseIntArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 2, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenLong2D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[2];
+   cl_uint dims[2];
    dims[0] = env->GetArrayLength((jobjectArray)javaBuffer);
    dims[1] = env->GetArrayLength((jlongArray)env->GetObjectArrayElement((jobjectArray)javaBuffer, 0));
    int totalSize = dims[0] * dims[1];
@@ -353,13 +381,13 @@ void AparapiBuffer::flattenLong2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseLongArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 2, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenFloat2D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[2];
+   cl_uint dims[2];
    dims[0] = env->GetArrayLength((jobjectArray)javaBuffer);
    dims[1] = env->GetArrayLength((jfloatArray)env->GetObjectArrayElement((jobjectArray)javaBuffer, 0));
    int totalSize = dims[0] * dims[1];
@@ -399,13 +427,13 @@ void AparapiBuffer::flattenFloat2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseFloatArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 2, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenDouble2D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[2];
+   cl_uint dims[2];
    dims[0] = env->GetArrayLength((jobjectArray)javaBuffer);
    dims[1] = env->GetArrayLength((jdoubleArray)env->GetObjectArrayElement((jobjectArray)javaBuffer, 0));
    int totalSize = dims[0] * dims[1];
@@ -445,14 +473,14 @@ void AparapiBuffer::flattenDouble2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseDoubleArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 2, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 
 void AparapiBuffer::flattenBoolean3D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[3];
+   cl_uint dims[3];
    jobjectArray j0 = (jobjectArray)javaBuffer;
    jobjectArray j1 = (jobjectArray)env->GetObjectArrayElement(j0, 0);
    jbooleanArray j2 = (jbooleanArray)env->GetObjectArrayElement(j1, 0);
@@ -510,13 +538,13 @@ void AparapiBuffer::flattenBoolean3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 3, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenByte3D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[3];
+   cl_uint dims[3];
    jobjectArray j0 = (jobjectArray)javaBuffer;
    jobjectArray j1 = (jobjectArray)env->GetObjectArrayElement(j0, 0);
    jbyteArray j2 = (jbyteArray)env->GetObjectArrayElement(j1, 0);
@@ -574,13 +602,13 @@ void AparapiBuffer::flattenByte3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 3, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenShort3D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[3];
+   cl_uint dims[3];
    jobjectArray j0 = (jobjectArray)javaBuffer;
    jobjectArray j1 = (jobjectArray)env->GetObjectArrayElement(j0, 0);
    jshortArray j2 = (jshortArray)env->GetObjectArrayElement(j1, 0);
@@ -638,13 +666,13 @@ void AparapiBuffer::flattenShort3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 3, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenInt3D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[3];
+   cl_uint dims[3];
    jobjectArray j0 = (jobjectArray)javaBuffer;
    jobjectArray j1 = (jobjectArray)env->GetObjectArrayElement(j0, 0);
    jintArray j2 = (jintArray)env->GetObjectArrayElement(j1, 0);
@@ -702,13 +730,13 @@ void AparapiBuffer::flattenInt3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 3, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenLong3D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[3];
+   cl_uint dims[3];
    jobjectArray j0 = (jobjectArray)javaBuffer;
    jobjectArray j1 = (jobjectArray)env->GetObjectArrayElement(j0, 0);
    jlongArray j2 = (jlongArray)env->GetObjectArrayElement(j1, 0);
@@ -766,13 +794,13 @@ void AparapiBuffer::flattenLong3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 3, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenFloat3D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[3];
+   cl_uint dims[3];
    jobjectArray j0 = (jobjectArray)javaBuffer;
    jobjectArray j1 = (jobjectArray)env->GetObjectArrayElement(j0, 0);
    jfloatArray j2 = (jfloatArray)env->GetObjectArrayElement(j1, 0);
@@ -830,13 +858,13 @@ void AparapiBuffer::flattenFloat3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 3, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenDouble3D(JNIEnv* env, KernelArg* arg) {
 
    jobject javaBuffer = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
-   cl_uint* dims = new cl_uint[3];
+   cl_uint dims[3];
    jobjectArray j0 = (jobjectArray)javaBuffer;
    jobjectArray j1 = (jobjectArray)env->GetObjectArrayElement(j0, 0);
    jdoubleArray j2 = (jdoubleArray)env->GetObjectArrayElement(j1, 0);
@@ -894,7 +922,7 @@ void AparapiBuffer::flattenDouble3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, (cl_uint*)dims, 3, bitSize, javaBuffer);
+   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 
@@ -1556,8 +1584,6 @@ void AparapiBuffer::inflateDouble3D(JNIEnv *env, KernelArg* arg) {
 
 void AparapiBuffer::deleteBuffer(KernelArg* arg)
 {
-      delete[] offsets;
-      delete[] lens;
    if(arg->isBoolean()) {
       delete[] (jboolean*)data;
    } else if(arg->isByte()) {

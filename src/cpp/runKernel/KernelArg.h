@@ -61,7 +61,11 @@ class KernelArg{
 
 
    public:
-      static jfieldID javaArrayFieldID; 
+      static jfieldID javaArrayFieldID;
+
+      static jfieldID getSizeInBytesFieldID(){
+    	  return sizeInBytesFieldID;
+      }
    public:
       JNIContext *jniContext;  
       jobject argObj;    // the Java KernelRunner.KernelArg object that we are mirroring. Do not use it outside constructor due to GC. Use javaArg instead.
@@ -174,12 +178,15 @@ class KernelArg{
       void syncType(JNIEnv* jenv){
          type = jenv->GetIntField(javaArg, typeFieldID);
       }
-      void syncSizeInBytes(JNIEnv* jenv){
-         arrayBuffer->lengthInBytes = jenv->GetIntField(javaArg, sizeInBytesFieldID);
+
+      int getSizeInBytes(JNIEnv* jenv){
+    	 return jenv->GetIntField(javaArg, sizeInBytesFieldID);
       }
-      void syncJavaArrayLength(JNIEnv* jenv){
-         arrayBuffer->length = jenv->GetIntField(javaArg, numElementsFieldID);
+
+      cl_uint getJavaArrayLength(JNIEnv* jenv){
+         return jenv->GetIntField(javaArg, numElementsFieldID);
       }
+
       void clearExplicitBufferBit(JNIEnv* jenv){
          type &= ~com_aparapi_internal_jni_KernelRunnerJNI_ARG_EXPLICIT_WRITE;
          jenv->SetIntField(javaArg, typeFieldID,type );
