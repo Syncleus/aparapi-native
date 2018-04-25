@@ -52,6 +52,7 @@
    */
 #define ARRAYBUFFER_SOURCE
 #include "ArrayBuffer.h"
+#include "KernelArg.h"
 
 ArrayBuffer::ArrayBuffer():
    javaArray((jobject) 0),
@@ -76,4 +77,14 @@ void ArrayBuffer::pin(JNIEnv *jenv){
    void *ptr = addr;
    addr = jenv->GetPrimitiveArrayCritical((jarray)javaArray,&isCopy);
    isPinned = JNI_TRUE;
+}
+
+void ArrayBuffer::getMinimalParams(JNIEnv *jenv, KernelArg *arg, cl_uint& arrayElements, int &sizeInBytes) {
+    arrayElements = JNIHelper::getInstanceField<jint>(jenv, arg->javaArg, "numElements", IntArg);
+    sizeInBytes = jenv->GetIntField(arg->javaArg, KernelArg::getSizeInBytesFieldID());
+}
+
+void ArrayBuffer::syncMinimalParams(JNIEnv *jenv, KernelArg *arg) {
+    length = JNIHelper::getInstanceField<jint>(jenv, arg->javaArg, "numElements", IntArg);
+	lengthInBytes = jenv->GetIntField(arg->javaArg, KernelArg::getSizeInBytesFieldID());
 }

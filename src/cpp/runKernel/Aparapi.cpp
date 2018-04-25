@@ -273,7 +273,7 @@ jint updateNonPrimitiveReferences(JNIEnv *jenv, jobject jobj, JNIContext* jniCon
 
          //this won't be a problem with the aparapi buffers because
          //we need to copy them every time anyway
-         if (!arg->isPrimitive() && !arg->isAparapiBuffer()) {
+         if (!arg->isPrimitive() && !arg->isLocal() && !arg->isAparapiBuffer()) {
             // Following used for all primitive arrays, object arrays and nio Buffers
             jarray newRef = (jarray)jenv->GetObjectField(arg->javaArg, KernelArg::javaArrayFieldID);
             if (config->isVerbose()){
@@ -319,10 +319,10 @@ jint updateNonPrimitiveReferences(JNIEnv *jenv, jobject jobj, JNIContext* jniCon
                }
 
                // Save the lengthInBytes which was set on the java side
-               arg->syncSizeInBytes(jenv);
+               int lengthInBytes = arg->getSizeInBytes(jenv);
 
                if (config->isVerbose()){
-                  fprintf(stderr, "updateNonPrimitiveReferences, args[%d].lengthInBytes=%d\n", i, arg->arrayBuffer->lengthInBytes);
+                  fprintf(stderr, "updateNonPrimitiveReferences, args[%d].lengthInBytes=%d\n", i, lengthInBytes);
                }
             } // object has changed
          }
@@ -371,6 +371,7 @@ void updateArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argP
    else if (arg->isMutableByKernel()) mask |= CL_MEM_WRITE_ONLY;
    arg->arrayBuffer->memMask = mask;
 
+   arg->arrayBuffer->syncMinimalParams(jenv, arg);
    if (config->isVerbose()) {
       strcpy(arg->arrayBuffer->memSpec,"CL_MEM_USE_HOST_PTR");
       if (mask & CL_MEM_READ_WRITE) strcat(arg->arrayBuffer->memSpec,"|CL_MEM_READ_WRITE");
@@ -396,7 +397,6 @@ void updateArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argP
    // Add the array length if needed
    if (arg->usesArrayLength()) {
       argPos++;
-      arg->syncJavaArrayLength(jenv);
 
       status = clSetKernelArg(jniContext->kernel, argPos, sizeof(jint), &(arg->arrayBuffer->length));
       if(status != CL_SUCCESS) throw CLException(status,"clSetKernelArg (array length)");
@@ -644,15 +644,39 @@ void updateWriteEvents(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int
 void processLocalArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argPos, int argIdx) {
 
    cl_int status = CL_SUCCESS;
-   // what if local buffer size has changed?  We need a check for resize here.
-   if (jniContext->firstRun) {
+
+   cl_uint arrayLength;
+   int lengthInBytes;
+
+   arg->arrayBuffer->getMinimalParams(jenv, arg, arrayLength, lengthInBytes);
+
+   if (config->isVerbose()) {
+       fprintf(stderr, "runKernel local array arg %d %s - new[elems: %d, bytes: %d], old[elems: %d, bytes: %d]\n",
+               argIdx, arg->name, arrayLength, lengthInBytes, arg->arrayBuffer->length, arg->arrayBuffer->lengthInBytes);
+   }
+
+   bool changed = false;
+   if (lengthInBytes != arg->arrayBuffer->lengthInBytes) {
+	   changed = true;
+   }
+
+   if (!changed && arg->usesArrayLength() && arrayLength != arg->arrayBuffer->length) {
+       changed = true;
+   }
+
+
+   if (jniContext->firstRun || changed) {
+	  if (config->isVerbose()) {
+		  fprintf(stderr, "runKernel local array arg %d %s resize detected - adjusting args\n", argIdx, arg->name);
+	  }
+
+	  arg->arrayBuffer->syncMinimalParams(jenv, arg);
+
       status = arg->setLocalBufferArg(jenv, argIdx, argPos, config->isVerbose());
       if(status != CL_SUCCESS) throw CLException(status,"clSetKernelArg() (local)");
 
       // Add the array length if needed
       if (arg->usesArrayLength()) {
-         arg->syncJavaArrayLength(jenv);
-
          status = clSetKernelArg(jniContext->kernel, argPos, sizeof(jint), &(arg->arrayBuffer->length));
 
          if (config->isVerbose()){
@@ -660,9 +684,12 @@ void processLocalArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int
          }
 
          if(status != CL_SUCCESS) throw CLException(status,"clSetKernelArg (array length)");
-
       }
    } else {
+      if (config->isVerbose()) {
+         fprintf(stderr, "runKernel local array arg %d %s no resize detected - keeping args\n", argIdx, arg->name);
+      }
+
       // Keep the arg position in sync if no updates were required
       if (arg->usesArrayLength()) {
          argPos++;
@@ -684,14 +711,43 @@ void processLocalArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int
 void processLocalBuffer(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argPos, int argIdx) {
 
    cl_int status = CL_SUCCESS;
+
+   cl_uint numDims;
+   cl_uint dims[3];
+   int lengthInBytes;
+   arg->aparapiBuffer->getMinimalParams(jenv, arg, numDims, dims, lengthInBytes);
+
+   if (config->isVerbose()) {
+       fprintf(stderr, "runKernel local NDarray arg %d %s - new[bytes: %d], old[bytes: %d]\n",
+               argIdx, arg->name, lengthInBytes, arg->aparapiBuffer->lengthInBytes);
+   }
+
+
+   bool changed = false;
+   if (lengthInBytes != arg->aparapiBuffer->lengthInBytes) {
+	   changed = true;
+   }
+
+   if (!changed && arg->usesArrayLength()) {
+	   for (int i = 0; i < numDims; i++) {
+		   if (dims[i] != arg->aparapiBuffer->lens[i]) {
+			   changed = true;
+			   break;
+		   }
+	   }
+   }
+
    // what if local buffer size has changed?  We need a check for resize here.
-   if (jniContext->firstRun) {
+   if (jniContext->firstRun || changed) {
+	  if (config->isVerbose()) {
+		  fprintf(stderr, "runKernel local NDarray arg %d %s resize detected - adjusting args\n", argIdx, arg->name);
+	  }
+
 	  //To retrieve all fields of aparapiBuffer from Java for this local arg.
-	  arg->aparapiBuffer->flatten(jenv,arg);
+	  arg->aparapiBuffer->syncMinimalParams(jenv, arg);
 
       status = arg->setLocalAparapiBufferArg(jenv, argIdx, argPos, config->isVerbose());
       if(status != CL_SUCCESS) {
-    	  arg->aparapiBuffer->deleteBuffer(arg);
     	  throw CLException(status,"clSetKernelArg() (local)");
       }
 
@@ -699,36 +755,20 @@ void processLocalBuffer(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, in
       if (arg->usesArrayLength()) {
          for(int i = 0; i < arg->aparapiBuffer->numDims; i++)
          {
-        	 if (arg->aparapiBuffer->lens == NULL) {
-				 std::string str = "runKernel arg " + patch::to_string(argIdx) + " " + arg->name +
-				 " - AparapiBuffer lens field is NULL at dim " + patch::to_string(i+1) + " of " +
-				 patch::to_string(arg->aparapiBuffer->numDims) + "\n";
-				 arg->aparapiBuffer->deleteBuffer(arg);
-				 throw CLException(CL_INVALID_VALUE, str.c_str());
-			  }
 			  int length = arg->aparapiBuffer->lens[i];
 			  argPos++;
 			  status = clSetKernelArg(jniContext->kernel, argPos, sizeof(cl_uint), &length);
 			  if(status != CL_SUCCESS) {
-				  arg->aparapiBuffer->deleteBuffer(arg);
 				  throw CLException(status,"clSetKernelArg (buffer length)");
 			  }
 			  if (config->isVerbose()){
 				 fprintf(stderr, "runKernel arg %d %s, length = %d\n", argIdx, arg->name, length);
 			  }
 
-			  if (arg->aparapiBuffer->offsets == NULL) {
-				 std::string str = "runKernel arg " + patch::to_string(argIdx) + " " + arg->name +
-				 " - AparapiBuffer offsets field is NULL at dim " + patch::to_string(i+1) + " of " +
-				 patch::to_string(arg->aparapiBuffer->numDims) + "\n";
-				 arg->aparapiBuffer->deleteBuffer(arg);
-				 throw CLException(CL_INVALID_VALUE, str.c_str());
-			  }
 			  int offset = arg->aparapiBuffer->offsets[i];
 			  argPos++;
 			  status = clSetKernelArg(jniContext->kernel, argPos, sizeof(cl_uint), &offset);
 			  if(status != CL_SUCCESS) {
-				  arg->aparapiBuffer->deleteBuffer(arg);
 				  throw CLException(status,"clSetKernelArg (buffer offset)");
 			  }
 			  if (config->isVerbose()){
@@ -736,10 +776,14 @@ void processLocalBuffer(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, in
 			  }
          }
       }
-   } else {
+  } else {
+	  if (config->isVerbose()) {
+		  fprintf(stderr, "runKernel local NDarray arg %d %s no resize detected - keeping args\n", argIdx, arg->name);
+	  }
+
       // Keep the arg position in sync if no updates were required
       if (arg->usesArrayLength()) {
-         argPos += arg->aparapiBuffer->numDims;
+         argPos += arg->aparapiBuffer->numDims*2;
       }
    }
 }
@@ -984,14 +1028,6 @@ int getReadEvents(JNIEnv* jenv, JNIContext* jniContext) {
    cl_int status = CL_SUCCESS;
    for (int i=0; i< jniContext->argc; i++) {
       KernelArg *arg = jniContext->args[i];
-
-      if (arg->isLocal() && arg->isAparapiBuffer()) {
-    	  if (config->isVerbose()) {
-    		  fprintf(stderr, "Freeing local aparapi buffer for arg %d", arg->name);
-    	  }
-    	  arg->aparapiBuffer->deleteBuffer(arg);
-    	  continue;
-      }
 
       if (arg->needToEnqueueRead()){
          if (arg->isConstant()){

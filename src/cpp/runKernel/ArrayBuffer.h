@@ -56,6 +56,8 @@
 #include "Common.h"
 #include "ProfileInfo.h"
 
+class KernelArg;
+
 class ArrayBuffer{
    public:
       jobject javaArray;        // The java array that this arg is mapped to
@@ -74,6 +76,8 @@ class ArrayBuffer{
       void unpinAbort(JNIEnv *jenv);
       void unpinCommit(JNIEnv *jenv);
       void pin(JNIEnv *jenv);
+      void getMinimalParams(JNIEnv *jenv, KernelArg *arg, cl_uint& arrayElements, int &sizeInBytes);
+      void syncMinimalParams(JNIEnv *jenv, KernelArg *arg);
 };
 
 #endif // ARRAYBUFFER_H

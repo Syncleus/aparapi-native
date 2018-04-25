@@ -35,7 +35,7 @@ class KernelArg{
    private:
       static jclass argClazz;
       static jfieldID nameFieldID;
-      static jfieldID typeFieldID;
+      static jfieldID typeFieldID; 
       static jfieldID sizeInBytesFieldID;
       static jfieldID numElementsFieldID;
 
@@ -59,7 +59,7 @@ class KernelArg{
       void getStaticPrimitiveValue(JNIEnv *jenv, jlong *value);
       void getStaticPrimitiveValue(JNIEnv *jenv, jdouble *value);
 
-      template<typename T>
+      template<typename T> 
       void getPrimitive(JNIEnv *jenv, int argIdx, int argPos, bool verbose, T* value) {
          if(isStatic()) {
             getStaticPrimitiveValue(jenv, value);
@@ -77,6 +77,10 @@ class KernelArg{
 
    public:
       static jfieldID javaArrayFieldID;
+
+      static jfieldID getSizeInBytesFieldID(){
+    	  return sizeInBytesFieldID;
+      }
    public:
       JNIContext *jniContext;
       jobject argObj;    // the Java KernelRunner.KernelArg object that we are mirroring. Do not use it outside constructor due to GC. Use javaArg instead.
@@ -189,12 +193,15 @@ class KernelArg{
       void syncType(JNIEnv* jenv){
          type = jenv->GetIntField(javaArg, typeFieldID);
       }
-      void syncSizeInBytes(JNIEnv* jenv){
-         arrayBuffer->lengthInBytes = jenv->GetIntField(javaArg, sizeInBytesFieldID);
+
+      int getSizeInBytes(JNIEnv* jenv){
+    	 return jenv->GetIntField(javaArg, sizeInBytesFieldID);
       }
-      void syncJavaArrayLength(JNIEnv* jenv){
-         arrayBuffer->length = jenv->GetIntField(javaArg, numElementsFieldID);
+
+      cl_uint getJavaArrayLength(JNIEnv* jenv){
+         return jenv->GetIntField(javaArg, numElementsFieldID);
       }
+
       void clearExplicitBufferBit(JNIEnv* jenv){
          type &= ~com_aparapi_internal_jni_KernelRunnerJNI_ARG_EXPLICIT_WRITE;
          jenv->SetIntField(javaArg, typeFieldID,type );
