@@ -1,4 +1,6 @@
-# Aparapi jni Change Log
+jni# Aparapi jni Changelog
+
+## 1.3.2
 
 ## 1.3.2
 

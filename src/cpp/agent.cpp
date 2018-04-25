@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2016 - 2018 Syncleus, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -75,7 +90,7 @@ extern "C" {
       fprintf(stdout, "inside getBytes(\"%s\")\n", nameChars);
       for (NameToBytes *ptr = head; ptr != NULL; ptr=(NameToBytes *)ptr->getNext()){
          if (isKernel((char *)ptr->getName(), ptr->getByteBuffer())){
-            fprintf(stdout, "%s is a kernel!\n", ptr->getName()); 
+            fprintf(stdout, "%s is a kernel!\n", ptr->getName());
          }
          //fprintf(stdout, "testing \"%s\"==\"%s\"\n", nameChars, ptr->getName());
          if (!strcmp(ptr->getName(), nameChars)){
@@ -113,7 +128,7 @@ static void JNICALL cbClassFileLoadHook(jvmtiEnv *jvmti_env, JNIEnv* jni_env,
    //   fprintf(stdout, "from agent classFileLoadHook(%s)\n", name);
    ByteBuffer *byteBuffer = new ByteBuffer((byte_t *)class_data, (size_t)class_data_len);
    head = new NameToBytes(head, (char *)name, byteBuffer);
-   //fprintf(stdout, "class \"%s\"  ", name); 
+   //fprintf(stdout, "class \"%s\"  ", name);
 }
 
 
@@ -134,7 +149,7 @@ JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
       fprintf(stderr, "ERROR: Unable to create jvmtiEnv, GetEnv failed, error=%d\n", rc);
       returnValue = -1;
    }else{
-      /* Get/Add JVMTI capabilities */ 
+      /* Get/Add JVMTI capabilities */
       if ((err = jvmti->GetCapabilities(&capabilities) ) != JVMTI_ERROR_NONE) {
          fprintf(stderr, "ERROR: GetCapabilities failed, error=%d\n", err);
          returnValue = -1;
@@ -163,4 +178,3 @@ JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
 JNIEXPORT void JNICALL Agent_OnUnload(JavaVM *vm) {
    fprintf(stdout, "Agent_OnUnload()\n");
 }
-

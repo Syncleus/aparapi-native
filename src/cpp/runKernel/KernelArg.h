@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2016 - 2018 Syncleus, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef KERNEL_ARG_H
 #define KERNEL_ARG_H
@@ -54,7 +69,7 @@ class KernelArg{
          }
          if (verbose) {
              std::cerr << "clSetKernelArg " << getTypeName() << " '" << name
-                       << " ' index=" << argIdx << " pos=" << argPos 
+                       << " ' index=" << argIdx << " pos=" << argPos
                        << " value=" << *value << std::endl;
          }
       }
@@ -67,7 +82,7 @@ class KernelArg{
     	  return sizeInBytesFieldID;
       }
    public:
-      JNIContext *jniContext;  
+      JNIContext *jniContext;
       jobject argObj;    // the Java KernelRunner.KernelArg object that we are mirroring. Do not use it outside constructor due to GC. Use javaArg instead.
       jobject javaArg;   // global reference to the corresponding java KernelArg object we grabbed our own global reference so that the object won't be collected until we dispose!
       char *name;        // used for debugging printfs
@@ -89,7 +104,7 @@ class KernelArg{
          arrayBuffer->unpinCommit(jenv);
       }
       void unpin(JNIEnv *jenv){
-         //if  (value.ref.isPinned == JNI_FALSE){		 
+         //if  (value.ref.isPinned == JNI_FALSE){
          //     fprintf(stdout, "why are we unpinning buffer %s! isPinned = JNI_TRUE\n", name);
          //}
          if (isMutableByKernel()){
@@ -192,13 +207,13 @@ class KernelArg{
          jenv->SetIntField(javaArg, typeFieldID,type );
       }
 
-      // Uses JNIContext so can't inline here we below.  
+      // Uses JNIContext so can't inline here we below.
       void syncValue(JNIEnv *jenv);
 
-      // Uses JNIContext so can't inline here we below.  
+      // Uses JNIContext so can't inline here we below.
       cl_int setLocalBufferArg(JNIEnv *jenv, int argIdx, int argPos, bool verbose);
       cl_int setLocalAparapiBufferArg(JNIEnv *jenv, int argIdx, int argPos, bool verbose);
-      // Uses JNIContext so can't inline here we below.  
+      // Uses JNIContext so can't inline here we below.
       cl_int setPrimitiveArg(JNIEnv *jenv, int argIdx, int argPos, bool verbose);
 };
 

@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2016 - 2018 Syncleus, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "Range.h"
 
@@ -9,7 +24,7 @@ jfieldID  Range::localSize_0_FieldID=0;
 jfieldID  Range::localSize_1_FieldID=0;
 jfieldID  Range::localSize_2_FieldID=0;
 jfieldID  Range::dimsFieldID=0;
-jfieldID  Range::localIsDerivedFieldID=0; 
+jfieldID  Range::localIsDerivedFieldID=0;
 
 Range::Range(JNIEnv *jenv, jobject range):
          range(range),
@@ -18,7 +33,7 @@ Range::Range(JNIEnv *jenv, jobject range):
          globalDims(NULL),
          localDims(NULL){
    if (rangeClazz ==NULL){
-      jclass rangeClazz = jenv->GetObjectClass(range); 
+      jclass rangeClazz = jenv->GetObjectClass(range);
       globalSize_0_FieldID = JNIHelper::GetFieldID(jenv, rangeClazz, "globalSize_0", "I");
       globalSize_1_FieldID = JNIHelper::GetFieldID(jenv, rangeClazz, "globalSize_1", "I");
       globalSize_2_FieldID = JNIHelper::GetFieldID(jenv, rangeClazz, "globalSize_2", "I");
@@ -70,5 +85,3 @@ Range::~Range(){
       delete localDims;
    }
 }
-
-
