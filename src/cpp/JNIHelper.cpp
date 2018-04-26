@@ -55,6 +55,26 @@
 #define JNI_SOURCE
 #include "JNIHelper.h"
 
+void JNIHelper::callVoidWithException(JNIEnv *jenv, jobject instance, const char *methodName){
+   try {
+      jclass theClass = jenv->GetObjectClass(instance);
+      if (theClass == NULL ||  jenv->ExceptionCheck())
+         throw std::string("bummer! getting class from instance");
+
+      jmethodID methodId= jenv->GetMethodID(theClass,methodName,"()V");
+      if (methodId == NULL || jenv->ExceptionCheck())
+         throw std::string("bummer getting method '") + methodName + "', '()V' from instance";
+
+      jenv->CallVoidMethod(instance, methodId);
+      if (jenv->ExceptionCheck())
+         throw std::string("bummer calling '") + methodName + "', '()V'";
+
+   } catch(std::string& s) {
+      jenv->ExceptionClear();
+      throw s;
+   }
+}
+
 void JNIHelper::callVoid(JNIEnv *jenv, jobject instance, const char *methodName, const char *methodSignature, ...){
    try {
       jclass theClass = jenv->GetObjectClass(instance);

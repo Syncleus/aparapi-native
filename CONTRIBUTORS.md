@@ -30,3 +30,4 @@ Below are some of the specific details of various contributions.
 * Luis Mendes Issue #51 JVM crash when using multi-dimensional local arrays (refs #51)
 * Luis Mendes submitted local arrays handling 1D and ND, to cope with arrays resizing across kernel executions
 * Luis Mendes submitted #107 aparapi now supports efficient execution on discrete GPU and other devices
+* Luis Mendes submitted - Support for OpenCLDevice configurator/configure API

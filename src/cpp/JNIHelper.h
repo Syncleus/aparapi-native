@@ -171,6 +171,7 @@ class JNIHelper {
 
 
    public:
+      static void callVoidWithException(JNIEnv *jenv, jobject instance, const char *methodName);
       static void callVoid(JNIEnv *jenv, jobject instance, const char *methodName, const char *methodSignature, ...);
       static jlong callLong(JNIEnv *jenv, jobject instance, const char *methodName, const char *methodSignature, ...);
       static jobject callObject(JNIEnv *jenv, jobject instance, const char *methodName, const char *methodSignature, ...);

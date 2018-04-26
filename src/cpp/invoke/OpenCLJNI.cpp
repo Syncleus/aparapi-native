@@ -581,6 +581,12 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
                         value = (char*) malloc(valueSize);
                         clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_NAME, valueSize, value, NULL);
                         JNIHelper::callVoid(jenv, deviceInstance, "setName", ArgsVoidReturn(StringClassArg), jenv->NewStringUTF(value));
+
+                        try {
+                            JNIHelper::callVoidWithException(jenv, deviceInstance, "configure");
+                        } catch (std::string &s) {
+                            fprintf(stderr, "Failed to call OpenClDevice.configure() - method not available in Aparapi<1.9.0\n");
+                        }
                      }
 
                   }
