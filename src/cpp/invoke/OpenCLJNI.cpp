@@ -68,6 +68,21 @@
 jobject OpenCLDevice::getPlatformInstance(JNIEnv *jenv, jobject deviceInstance){
    return(JNIHelper::getInstanceField<jobject>(jenv, deviceInstance, "platform", OpenCLPlatformClassArg ));
 }
+
+bool OpenCLDevice::isSharedMemory(JNIEnv *jenv, jobject deviceInstance) {
+    try {
+        jboolean value = (JNIHelper::getInstanceFieldWithException<jboolean>(jenv, deviceInstance, "sharedMemory"));
+        if (value != 0) {
+            return true;
+        }
+    } catch (std::string &se) {
+        //For backwards compatibility with older Aparapi versions.
+        fprintf(stderr, "Property sharedMemory not found for class OpenCLDevice, using default: true\n");
+        return true;
+    }
+    return false;
+}
+
 cl_device_id OpenCLDevice::getDeviceId(JNIEnv *jenv, jobject deviceInstance){
    return((cl_device_id)JNIHelper::getInstanceField<jlong>(jenv, deviceInstance, "deviceId"));
 }
@@ -566,6 +581,12 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
                         value = (char*) malloc(valueSize);
                         clGetDeviceInfo(deviceIds[deviceIdx], CL_DEVICE_NAME, valueSize, value, NULL);
                         JNIHelper::callVoid(jenv, deviceInstance, "setName", ArgsVoidReturn(StringClassArg), jenv->NewStringUTF(value));
+
+                        try {
+                            JNIHelper::callVoidWithException(jenv, deviceInstance, "configure");
+                        } catch (std::string &s) {
+                            fprintf(stderr, "Failed to call OpenClDevice.configure() - method not available in Aparapi<1.9.0\n");
+                        }
                      }
 
                   }

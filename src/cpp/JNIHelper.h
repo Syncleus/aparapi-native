@@ -171,6 +171,7 @@ class JNIHelper {
 
 
    public:
+      static void callVoidWithException(JNIEnv *jenv, jobject instance, const char *methodName);
       static void callVoid(JNIEnv *jenv, jobject instance, const char *methodName, const char *methodSignature, ...);
       static jlong callLong(JNIEnv *jenv, jobject instance, const char *methodName, const char *methodSignature, ...);
       static jobject callObject(JNIEnv *jenv, jobject instance, const char *methodName, const char *methodSignature, ...);
@@ -233,6 +234,11 @@ class JNIHelper {
       }
 
       template<typename jT>
+      static jT getInstanceFieldWithException(JNIEnv *jenv, jobject instance, const char *fieldName) {
+          return getInstanceFieldWithException<jT>(jenv, instance, fieldName, getSignature((jT)0));
+      }
+
+      template<typename jT>
       static jT getInstanceField(JNIEnv *jenv, jobject instance, const char *fieldName, const char *signature) {
          jT value = (jT)0;
          try {
@@ -254,6 +260,25 @@ class JNIHelper {
          return(value);
       }
 
+      template<typename jT>
+      static jT getInstanceFieldWithException(JNIEnv *jenv, jobject instance, const char *fieldName, const char *signature) {
+         jT value = (jT)0;
+         try {
+            jclass theClass = jenv->GetObjectClass(instance);
+            if (theClass == NULL ||  jenv->ExceptionCheck())
+               throw "bummer! getting class from instance\n";
+            jfieldID fieldId = jenv->GetFieldID(theClass,fieldName, signature);
+            if (fieldId == NULL || jenv->ExceptionCheck())
+               throw std::string("bummer getting ") + getType(value) + "field '" + fieldName + "' \n";
+            getField(jenv, instance, fieldId, &value);
+            if (jenv->ExceptionCheck())
+               throw std::string("bummer getting ") + getType(value) + "field '" + fieldName + "' \n";
+         } catch(std::string& se) {
+            jenv->ExceptionClear();
+            throw se;
+         }
+         return(value);
+      }
 
       static jfieldID GetFieldID(JNIEnv* jenv, jclass c, const char* name, const char* type) {
          jfieldID field = jenv->GetFieldID(c, name, type);

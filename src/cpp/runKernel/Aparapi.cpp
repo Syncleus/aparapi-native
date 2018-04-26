@@ -365,7 +365,12 @@ void updateArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argP
    cl_int status = CL_SUCCESS;
    // if either this is the first run or user changed input array
    // or gc moved something, then we create buffers/args
-   cl_uint mask = CL_MEM_USE_HOST_PTR;
+   cl_uint mask = 0;
+   if (jniContext->isSharedMemory()) {
+       mask |= CL_MEM_USE_HOST_PTR;
+   } else {
+       mask |= CL_MEM_COPY_HOST_PTR;
+   }
    if (arg->isReadByKernel() && arg->isMutableByKernel()) mask |= CL_MEM_READ_WRITE;
    else if (arg->isReadByKernel() && !arg->isMutableByKernel()) mask |= CL_MEM_READ_ONLY;
    else if (arg->isMutableByKernel()) mask |= CL_MEM_WRITE_ONLY;
@@ -373,7 +378,7 @@ void updateArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argP
 
    arg->arrayBuffer->syncMinimalParams(jenv, arg);
    if (config->isVerbose()) {
-      strcpy(arg->arrayBuffer->memSpec,"CL_MEM_USE_HOST_PTR");
+      strcpy(arg->arrayBuffer->memSpec, (mask & CL_MEM_COPY_HOST_PTR) != 0 ? "CL_MEM_COPY_HOST_PTR" : "CL_MEM_USE_HOST_PTR");
       if (mask & CL_MEM_READ_WRITE) strcat(arg->arrayBuffer->memSpec,"|CL_MEM_READ_WRITE");
       if (mask & CL_MEM_READ_ONLY) strcat(arg->arrayBuffer->memSpec,"|CL_MEM_READ_ONLY");
       if (mask & CL_MEM_WRITE_ONLY) strcat(arg->arrayBuffer->memSpec,"|CL_MEM_WRITE_ONLY");
@@ -411,11 +416,32 @@ void updateBuffer(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& arg
 
    AparapiBuffer* buffer = arg->aparapiBuffer;
    cl_int status = CL_SUCCESS;
-   cl_uint mask = CL_MEM_USE_HOST_PTR;
+   cl_uint mask = 0;
+   if (jniContext->isSharedMemory()) {
+       mask |= CL_MEM_USE_HOST_PTR;
+   } else {
+       mask |= CL_MEM_COPY_HOST_PTR;
+   }
    if (arg->isReadByKernel() && arg->isMutableByKernel()) mask |= CL_MEM_READ_WRITE;
    else if (arg->isReadByKernel() && !arg->isMutableByKernel()) mask |= CL_MEM_READ_ONLY;
    else if (arg->isMutableByKernel()) mask |= CL_MEM_WRITE_ONLY;
    buffer->memMask = mask;
+
+   if (config->isVerbose()) {
+        std::string str = (mask & CL_MEM_COPY_HOST_PTR) != 0 ? "CL_MEM_COPY_HOST_PTR" : "CL_MEM_USE_HOST_PTR";
+        if (mask & CL_MEM_READ_WRITE) {
+            str += "|CL_MEM_READ_WRITE";
+        }
+        if (mask & CL_MEM_READ_ONLY) {
+            str += "|CL_MEM_READ_ONLY";
+        }
+        if (mask & CL_MEM_WRITE_ONLY) {
+            str += "|CL_MEM_WRITE_ONLY";
+        }
+
+        fprintf(stderr, "%s %d clCreateBuffer(context, %s, size=%08lx bytes, address=%p, &status)\n", arg->name,
+              argIdx, str.c_str(), (unsigned long)buffer->lengthInBytes, buffer->data);
+   }
 
    buffer->mem = clCreateBuffer(jniContext->context, buffer->memMask,
          buffer->lengthInBytes, buffer->data, &status);

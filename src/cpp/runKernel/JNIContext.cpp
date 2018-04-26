@@ -34,6 +34,7 @@ JNIContext::JNIContext(JNIEnv *jenv, jobject _kernelObject, jobject _openCLDevic
    jobject platformInstance = OpenCLDevice::getPlatformInstance(jenv, openCLDeviceObject);
    cl_platform_id platformId = OpenCLPlatform::getPlatformId(jenv, platformInstance);
    deviceId = OpenCLDevice::getDeviceId(jenv, openCLDeviceObject);
+   sharedMemory = OpenCLDevice::isSharedMemory(jenv, openCLDeviceObject);
    cl_device_type returnedDeviceType;
    clGetDeviceInfo(deviceId, CL_DEVICE_TYPE,  sizeof(returnedDeviceType), &returnedDeviceType, NULL);
    //fprintf(stderr, "device[%p] CL_DEVICE_TYPE = %x\n", deviceId, returnedDeviceType);
