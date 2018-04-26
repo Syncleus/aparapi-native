@@ -63,6 +63,7 @@
 
 class OpenCLDevice{
    public:
+      static bool isSharedMemory(JNIEnv *jenv, jobject deviceInstance);
       static jobject getPlatformInstance(JNIEnv *jenv, jobject deviceInstance);
       static cl_device_id getDeviceId(JNIEnv *jenv, jobject deviceInstance);
 };

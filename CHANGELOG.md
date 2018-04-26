@@ -3,6 +3,7 @@ jni# Aparapi jni Changelog
 ## 1.3.2
 
 * Fixed local arrays handling 1D and ND, to cope with arrays resizing across kernel executions
+* Fixed aparapi now supports efficient execution on discrete GPU and other devices with dedicated memory
 
 ## 1.3.1
 

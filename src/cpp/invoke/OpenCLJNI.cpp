@@ -68,6 +68,21 @@
 jobject OpenCLDevice::getPlatformInstance(JNIEnv *jenv, jobject deviceInstance){
    return(JNIHelper::getInstanceField<jobject>(jenv, deviceInstance, "platform", OpenCLPlatformClassArg ));
 }
+
+bool OpenCLDevice::isSharedMemory(JNIEnv *jenv, jobject deviceInstance) {
+    try {
+        jboolean value = (JNIHelper::getInstanceFieldWithException<jboolean>(jenv, deviceInstance, "sharedMemory"));
+        if (value != 0) {
+            return true;
+        }
+    } catch (std::string &se) {
+        //For backwards compatibility with older Aparapi versions.
+        fprintf(stderr, "Property sharedMemory not found for class OpenCLDevice, using default: true\n");
+        return true;
+    }
+    return false;
+}
+
 cl_device_id OpenCLDevice::getDeviceId(JNIEnv *jenv, jobject deviceInstance){
    return((cl_device_id)JNIHelper::getInstanceField<jlong>(jenv, deviceInstance, "deviceId"));
 }

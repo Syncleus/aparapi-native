@@ -25,6 +25,7 @@
 
 class JNIContext {
 private:
+   bool sharedMemory;
    jint flags;
    jboolean valid;
 public:
@@ -73,6 +74,10 @@ public:
       //I'm pretty sure that this is equivalend to:
       //return flags & com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC;
       return((flags&com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC)==com_aparapi_internal_jni_KernelRunnerJNI_JNI_FLAG_USE_ACC?JNI_TRUE:JNI_FALSE);
+   }
+
+   bool isSharedMemory() {
+       return sharedMemory;
    }
 
    ~JNIContext(){
