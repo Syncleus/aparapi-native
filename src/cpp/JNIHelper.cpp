@@ -66,9 +66,6 @@ void JNIHelper::callVoidWithException(JNIEnv *jenv, jobject instance, const char
          throw std::string("bummer getting method '") + methodName + "', '()V' from instance";
 
       jenv->CallVoidMethod(instance, methodId);
-      if (jenv->ExceptionCheck())
-         throw std::string("bummer calling '") + methodName + "', '()V'";
-
    } catch(std::string& s) {
       jenv->ExceptionClear();
       throw s;
