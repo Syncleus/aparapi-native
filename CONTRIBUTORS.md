@@ -10,6 +10,7 @@
 * Paul Miner
 * Lorenzo Gallucci
 * Luis Mendes <luis.p.mendes@gmail.com>
+* Sven Guenther <sven.guenther@gmail.com>
 
 # Details
 
