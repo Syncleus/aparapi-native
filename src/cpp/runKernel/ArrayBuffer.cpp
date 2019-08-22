@@ -94,10 +94,10 @@ void ArrayBuffer::syncMinimalParams(JNIEnv *jenv, KernelArg *arg) {
 void ArrayBuffer::replaceJavaArray(JNIEnv *jenv, KernelArg *arg, jarray newRef) {
    cl_int status = CL_SUCCESS;
     if (javaArray != NULL) {
-        jenv->DeleteWeakGlobalRef((jweak) javaArray);
         if (config->isVerbose()){
              fprintf(stderr, "DeleteWeakGlobalRef for %s: %p\n", arg->name, javaArray);
         }
+        jenv->DeleteWeakGlobalRef((jweak) javaArray);
         javaArray = 0;
     }
 
@@ -109,6 +109,7 @@ void ArrayBuffer::replaceJavaArray(JNIEnv *jenv, KernelArg *arg, jarray newRef) 
         }
         status = clReleaseMemObject((cl_mem)mem);
         //fprintf(stderr, "<--releaseMemObject[%d]\n", i);
+        CLException::checkCLError(status, "clReleaseMemObject()");
         if(status != CL_SUCCESS) throw CLException(status, "clReleaseMemObject()");
         mem = (cl_mem)0;
      }
@@ -131,11 +132,11 @@ void ArrayBuffer::replaceJavaArray(JNIEnv *jenv, KernelArg *arg, jarray newRef) 
 void ArrayBuffer::deleteJavaArray(JNIEnv *jenv, KernelArg *arg) {
    cl_int status = CL_SUCCESS;
     if (javaArray != NULL) {
-        jenv->DeleteWeakGlobalRef((jweak) ArrayBuffer::javaArray);
         if (config->isVerbose()){
              fprintf(stderr, "DeleteWeakGlobalRef for %s: %p\n", arg->name, ArrayBuffer::javaArray);
         }
-        javaArray = 0;
+        jenv->DeleteWeakGlobalRef((jweak) ArrayBuffer::javaArray);
+        javaArray=0;
     }
 
     // need to free opencl buffers, run will reallocate later
@@ -146,6 +147,7 @@ void ArrayBuffer::deleteJavaArray(JNIEnv *jenv, KernelArg *arg) {
         }
         status = clReleaseMemObject((cl_mem)mem);
         //fprintf(stderr, "<--releaseMemObject[%d]\n", i);
+        CLException::checkCLError(status, "clReleaseMemObject()");        
         if(status != CL_SUCCESS) throw CLException(status, "clReleaseMemObject()");
         mem = (cl_mem)0;
      }
