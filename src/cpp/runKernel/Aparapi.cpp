@@ -284,39 +284,8 @@ jint updateNonPrimitiveReferences(JNIEnv *jenv, jobject jobj, JNIContext* jniCon
                if (config->isVerbose()){
                   fprintf(stderr, "Resync javaArray for %s: %p  %p\n", arg->name, newRef, arg->arrayBuffer->javaArray);
                }
-               // Free previous ref if any
-               if (arg->arrayBuffer->javaArray != NULL) {
-                  jenv->DeleteWeakGlobalRef((jweak) arg->arrayBuffer->javaArray);
-                  if (config->isVerbose()){
-                     fprintf(stderr, "DeleteWeakGlobalRef for %s: %p\n", arg->name, arg->arrayBuffer->javaArray);
-                  }
-               }
-
-               // need to free opencl buffers, run will reallocate later
-               if (arg->arrayBuffer->mem != 0) {
-                  //fprintf(stderr, "-->releaseMemObject[%d]\n", i);
-                  if (config->isTrackingOpenCLResources()){
-                     memList.remove(arg->arrayBuffer->mem,__LINE__, __FILE__);
-                  }
-                  status = clReleaseMemObject((cl_mem)arg->arrayBuffer->mem);
-                  //fprintf(stderr, "<--releaseMemObject[%d]\n", i);
-                  if(status != CL_SUCCESS) throw CLException(status, "clReleaseMemObject()");
-                  arg->arrayBuffer->mem = (cl_mem)0;
-               }
-
-               arg->arrayBuffer->addr = NULL;
-
-               // Capture new array ref from the kernel arg object
-
-               if (newRef != NULL) {
-                  arg->arrayBuffer->javaArray = (jarray)jenv->NewWeakGlobalRef((jarray)newRef);
-                  if (config->isVerbose()){
-                     fprintf(stderr, "NewWeakGlobalRef for %s, set to %p\n", arg->name,
-                           arg->arrayBuffer->javaArray);
-                  }
-               } else {
-                  arg->arrayBuffer->javaArray = NULL;
-               }
+               // Free previous ref if any and allocate new
+               arg->arrayBuffer->replaceJavaArray(jenv, arg, newRef);
 
                // Save the lengthInBytes which was set on the java side
                int lengthInBytes = arg->getSizeInBytes(jenv);
@@ -413,7 +382,6 @@ void updateArray(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argP
 }
 
 void updateBuffer(JNIEnv* jenv, JNIContext* jniContext, KernelArg* arg, int& argPos, int argIdx) {
-
    AparapiBuffer* buffer = arg->aparapiBuffer;
    cl_int status = CL_SUCCESS;
    cl_uint mask = 0;
