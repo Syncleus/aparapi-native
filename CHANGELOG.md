@@ -2,7 +2,7 @@
 
 ## 1.4.2
 
-* Fixed JVM crash when using multi-dimensional arrays (> 1D)
+* Fixed Potential JVM crash when using multi-dimensional arrays (> 1D)
 
 ## 1.4.1
 
