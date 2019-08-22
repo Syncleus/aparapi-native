@@ -103,18 +103,7 @@ void JNIContext::dispose(JNIEnv *jenv, Config* config) {
                }
             } else if (arg->isAparapiBuffer()) {
                if (arg->aparapiBuffer != NULL){
-                  if (arg->aparapiBuffer->mem != 0){
-                     if (config->isTrackingOpenCLResources()){
-                        memList.remove((cl_mem)arg->aparapiBuffer->mem, __LINE__, __FILE__);
-                     }
-                     status = clReleaseMemObject((cl_mem)arg->aparapiBuffer->mem);
-                     //fprintf(stdout, "dispose arg %d %0lx\n", i, arg->aparapiBuffer->mem);
-                     CLException::checkCLError(status, "clReleaseMemObject()");
-                     arg->aparapiBuffer->mem = (cl_mem)0;
-                  }
-                  if (arg->aparapiBuffer->javaObject != NULL)  {
-                     jenv->DeleteWeakGlobalRef((jweak) arg->aparapiBuffer->javaObject);
-                  }
+                  arg->aparapiBuffer->deleteJavaObject(jenv, arg);
                   delete arg->aparapiBuffer;
                   arg->aparapiBuffer = NULL;
                }

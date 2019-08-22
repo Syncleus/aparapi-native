@@ -53,6 +53,7 @@
 #define APARAPIBUFFER_SOURCE
 #include "AparapiBuffer.h"
 #include "KernelArg.h"
+#include "List.h"
 
 AparapiBuffer::AparapiBuffer():
    javaObject((jobject) 0),
@@ -67,20 +68,6 @@ AparapiBuffer::AparapiBuffer():
       }
    }
 
-AparapiBuffer::AparapiBuffer(void* _data, cl_uint* _lens, cl_uint _numDims, long _lengthInBytes, jobject _javaObject) :
-   data(_data),
-   numDims(_numDims),
-   lengthInBytes(_lengthInBytes),
-   javaObject(_javaObject),
-   mem((cl_mem) 0),
-   memMask((cl_uint)0)
-{
-   for(int i = 0; i < _numDims; i++) {
-	   lens[i] = _lens[i];
-   }
-   computeOffsets();
-}
-
 void AparapiBuffer::computeOffsets() {
    for(int i = 0; i < numDims; i++) {
 	  offsets[i] = 1;
@@ -92,6 +79,63 @@ void AparapiBuffer::computeOffsets() {
 
 jobject AparapiBuffer::getJavaObject(JNIEnv* env, KernelArg* arg) const {
    return JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
+}
+
+void AparapiBuffer::replaceJavaObject(JNIEnv* jenv, KernelArg* arg, jobject newJavaObject) {
+    cl_int status = CL_SUCCESS;
+    if (javaObject != NULL) {
+        if (config->isVerbose()){
+             fprintf(stderr, "DeleteWeakGlobalRef for %s: %p\n", arg->name, javaObject);
+        }
+        jenv->DeleteWeakGlobalRef((jweak) javaObject);
+        javaObject = 0;
+    }
+
+    // need to free opencl buffers, run will reallocate later
+    if (mem != 0) {
+        //fprintf(stderr, "-->releaseMemObject[%d]\n", i);
+        if (config->isTrackingOpenCLResources()){
+            memList.remove(mem,__LINE__, __FILE__);
+        }
+        status = clReleaseMemObject((cl_mem)mem);
+        //fprintf(stderr, "<--releaseMemObject[%d]\n", i);
+        if(status != CL_SUCCESS) throw CLException(status, "clReleaseMemObject()");
+        mem = (cl_mem)0;
+     }
+
+     // Capture new array ref from the kernel arg object
+     if (newJavaObject != 0) {
+         javaObject = (jarray)jenv->NewWeakGlobalRef((jarray)newJavaObject);
+         if (config->isVerbose()){
+             fprintf(stderr, "NewWeakGlobalRef for %s, set to %p\n", arg->name,
+                 javaObject);
+         }
+    } else {
+        javaObject = 0;
+    }
+}
+
+void AparapiBuffer::deleteJavaObject(JNIEnv* jenv, KernelArg* arg) {
+    cl_int status = CL_SUCCESS;
+    if (javaObject != 0) {
+        if (config->isVerbose()){
+             fprintf(stderr, "DeleteWeakGlobalRef for %s: %p\n", arg->name, javaObject);
+        }
+        jenv->DeleteWeakGlobalRef((jweak) javaObject);
+        javaObject = 0;
+    }
+
+    // need to free opencl buffers, run will reallocate later
+    if (mem != 0) {
+        //fprintf(stderr, "-->releaseMemObject[%d]\n", i);
+        if (config->isTrackingOpenCLResources()){
+            memList.remove(mem,__LINE__, __FILE__);
+        }
+        status = clReleaseMemObject((cl_mem)mem);
+        //fprintf(stderr, "<--releaseMemObject[%d]\n", i);
+        if(status != CL_SUCCESS) throw CLException(status, "clReleaseMemObject()");
+        mem = (cl_mem)0;
+     }
 }
 
 void AparapiBuffer::getMinimalParams(JNIEnv *env, KernelArg* arg, cl_uint &numDims, cl_uint dims[], int &lengthInBytes) const {
@@ -155,14 +199,14 @@ void AparapiBuffer::flatten(JNIEnv* env, KernelArg* arg) {
 
 }
 
-void AparapiBuffer::buildBuffer(void* _data, cl_uint* _dims, cl_uint _numDims, long _lengthInBytes, jobject _javaObject) {
+void AparapiBuffer::buildBuffer(JNIEnv* env, KernelArg* arg, void* _data, cl_uint* _dims, cl_uint _numDims, long _lengthInBytes, jobject _javaObject) {
    data = _data;
    numDims = _numDims;
    lengthInBytes = _lengthInBytes;
-   javaObject = _javaObject;
    for(int i = 0; i < _numDims; i++) {
 	  lens[i] = _dims[i];
    }
+   replaceJavaObject(env, arg, _javaObject);
    computeOffsets();
 }
 
@@ -212,7 +256,7 @@ void AparapiBuffer::flattenBoolean2D(JNIEnv* env, KernelArg* arg) {
       // env->DeleteLocalRef(jArray);
    }
   
-   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenByte2D(JNIEnv* env, KernelArg* arg) {
@@ -258,7 +302,7 @@ void AparapiBuffer::flattenByte2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseByteArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenShort2D(JNIEnv* env, KernelArg* arg) {
@@ -304,7 +348,7 @@ void AparapiBuffer::flattenShort2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseShortArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenInt2D(JNIEnv* env, KernelArg* arg) {
@@ -350,7 +394,7 @@ void AparapiBuffer::flattenInt2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseIntArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenLong2D(JNIEnv* env, KernelArg* arg) {
@@ -396,7 +440,7 @@ void AparapiBuffer::flattenLong2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseLongArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenFloat2D(JNIEnv* env, KernelArg* arg) {
@@ -442,7 +486,7 @@ void AparapiBuffer::flattenFloat2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseFloatArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenDouble2D(JNIEnv* env, KernelArg* arg) {
@@ -488,7 +532,7 @@ void AparapiBuffer::flattenDouble2D(JNIEnv* env, KernelArg* arg) {
       env->ReleaseDoubleArrayElements(jArray, elems, 0);
    }
   
-   buildBuffer((void*)array, dims, 2, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 2, bitSize, javaBuffer);
 }
 
 
@@ -553,7 +597,7 @@ void AparapiBuffer::flattenBoolean3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenByte3D(JNIEnv* env, KernelArg* arg) {
@@ -617,7 +661,7 @@ void AparapiBuffer::flattenByte3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenShort3D(JNIEnv* env, KernelArg* arg) {
@@ -681,7 +725,7 @@ void AparapiBuffer::flattenShort3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenInt3D(JNIEnv* env, KernelArg* arg) {
@@ -745,7 +789,7 @@ void AparapiBuffer::flattenInt3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenLong3D(JNIEnv* env, KernelArg* arg) {
@@ -809,7 +853,7 @@ void AparapiBuffer::flattenLong3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenFloat3D(JNIEnv* env, KernelArg* arg) {
@@ -873,7 +917,7 @@ void AparapiBuffer::flattenFloat3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 void AparapiBuffer::flattenDouble3D(JNIEnv* env, KernelArg* arg) {
@@ -937,13 +981,12 @@ void AparapiBuffer::flattenDouble3D(JNIEnv* env, KernelArg* arg) {
       }
    }
   
-   buildBuffer((void*)array, dims, 3, bitSize, javaBuffer);
+   buildBuffer(env, arg, (void*)array, dims, 3, bitSize, javaBuffer);
 }
 
 
 
 void AparapiBuffer::inflate(JNIEnv* env, KernelArg* arg) {
-   javaObject = JNIHelper::getInstanceField<jobject>(env, arg->javaArg, "javaBuffer", ObjectClassArg);
    if(numDims == 2 && arg->isBoolean()) {
       AparapiBuffer::inflateBoolean2D(env, arg);
    } else if(numDims == 2 && arg->isByte()) {
