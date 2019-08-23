@@ -78,6 +78,8 @@ class ArrayBuffer{
       void pin(JNIEnv *jenv);
       void getMinimalParams(JNIEnv *jenv, KernelArg *arg, cl_uint& arrayElements, int &sizeInBytes);
       void syncMinimalParams(JNIEnv *jenv, KernelArg *arg);
+      void replaceJavaArray(JNIEnv *jenv, KernelArg *arg, jarray newRef);
+      void deleteJavaArray(JNIEnv *jenv, KernelArg *arg);
 };
 
 #endif // ARRAYBUFFER_H

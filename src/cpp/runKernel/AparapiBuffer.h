@@ -85,12 +85,12 @@ private:
       return (type&com_aparapi_internal_jni_KernelRunnerJNI_ARG_SHORT);
    }
 
-   void buildBuffer(void* _data, cl_uint* _dims, cl_uint _numDims, long _lengthInBytes, jobject _javaObject);
+   void buildBuffer(JNIEnv* env, KernelArg* arg, void* _data, cl_uint* _dims, cl_uint _numDims, long _lengthInBytes, jobject _javaObject);
 
    void computeOffsets();
 
 public:
-   	  static int const MAX_ND_DIMS = 3;
+      static int const MAX_ND_DIMS = 3;
 
       jobject javaObject;           // The java array that this arg is mapped to
       cl_uint numDims;              // number of dimensions of the object (array lengths for ND arrays)
@@ -153,6 +153,8 @@ public:
       void inflateDouble3D(JNIEnv *env, KernelArg* arg);
 
       jobject getJavaObject(JNIEnv* env, KernelArg* arg) const;
+      void replaceJavaObject(JNIEnv* env, KernelArg* arg, jobject newJavaObject);
+      void deleteJavaObject(JNIEnv* env, KernelArg* arg);
 };
 
 #endif // ARRAYBUFFER_H
