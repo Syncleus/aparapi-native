@@ -15,6 +15,7 @@
 *.dSYM
 *.dll
 *.jnilib
+m4/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

@@ -18,6 +18,12 @@ Alternatively you can do the linux compile via a Docker container by issuing the
 UID=${UID} GID=${GID} docker-compose up
 ```
 
+Sometimes you need to add additional include directories to specify the location of the java JNI headers for your jdk. To do this add the following to your call of the configure script:
+
+```
+./configure CXXFLAGS="-I//Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/include/ -I/Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/include/darwin"
+```
+
 Shared library in `.libs/libaparapi.dynlib` for osx and `.libs/libaparapi.so` for linux.
 
 To prepare a 32bit version on a 64bit Linux system simply run configure as:
