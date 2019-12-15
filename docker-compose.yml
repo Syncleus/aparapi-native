@@ -2,7 +2,7 @@ version: '3'
 services:
   aparapi_native_builder:
     container_name: aparapi_native_builder
-    image: 'aparapi/aparapi-native-builder'
+    image: 'aparapi/aparapi-native-builder:latest'
     build:
       context: .
     user: "$UID:$GID"
