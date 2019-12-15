@@ -1,0 +1,10 @@
+version: '3'
+services:
+  aparapi_native_builder:
+    container_name: aparapi_native_builder
+    image: 'aparapi/aparapi-native-builder'
+    build:
+      context: .
+    user: "$UID:$GID"
+    volumes:
+      - '${PWD}:/usr/src/app'

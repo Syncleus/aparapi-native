@@ -12,6 +12,12 @@ automake --add-missing
 make
 ```
 
+Alternatively you can do the linux compile via a Docker container by issuing the following command (equivelant to the above)
+
+```
+UID=${UID} GID=${GID} docker-compose up
+```
+
 Shared library in `.libs/libaparapi.dynlib` for osx and `.libs/libaparapi.so` for linux.
 
 To prepare a 32bit version on a 64bit Linux system simply run configure as:
