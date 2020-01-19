@@ -68,3 +68,5 @@ cmake-build-debug/
 /x64/
 /Release/
 /Debug/
+.libs64/
+.libs32/
