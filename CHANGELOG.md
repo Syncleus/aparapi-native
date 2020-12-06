@@ -2,6 +2,8 @@
 
 ## 1.4.3
 
+* Improve Aparapi native to enforce Kernel and Device max work group size limitations and provide query functions for clGetKernelWorkGroupInfo(...)
+
 ## 1.4.2
 
 * Fixed Potential JVM crash when using multi-dimensional arrays (> 1D)

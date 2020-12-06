@@ -61,6 +61,7 @@
 #include "ProfileInfo.h"
 #include "ArrayBuffer.h"
 #include "AparapiBuffer.h"
+#include "JNIExceptions.h"
 #include "CLHelper.h"
 #include "List.h"
 #include "Util.h"
@@ -843,6 +844,238 @@ int processArgs(JNIEnv* jenv, JNIContext* jniContext, int& argPos, int& writeEve
    return status;
 }
 
+JNI_JAVA(jlong, KernelRunnerJNI, getKernelMinimumPrivateMemSizeInUsePerWorkItemJNI)
+   (JNIEnv *jEnv, jobject jobj, jlong jniContextHandle) {
+   long maxPrivateMemSize = -1;
+   
+   try {   
+      JNIContext* jniContext = JNIContext::getJNIContext(jniContextHandle);
+      if (jniContext == NULL){
+         throwAparapiJNIRuntimeException(jEnv, "Failed to obtain JNI context from handle");
+         throw JNIException("getJNIContext()");
+      }
+
+      int length = queryKernelWorkGroupInfo(jEnv, jniContext, CL_KERNEL_PRIVATE_MEM_SIZE, &maxPrivateMemSize);
+      if (length != 1) {
+         throwAparapiJNIRuntimeException(jEnv, "getKernelMinimumPrivateMemSizeInUsePerWorkItemJNI() invalid length" + std::to_string(length));
+         throw JNIException("queryKernelWorkGroupInfo() invalid length: " + length);
+      }
+
+      return (jlong)maxPrivateMemSize;	
+   } catch (JNIException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   } catch (CLException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   }
+   
+   //This value will never be returned, because a JNI exception is on its way
+   return 0; 
+}
+
+JNI_JAVA(jlong, KernelRunnerJNI, getKernelLocalMemSizeInUseJNI)
+      (JNIEnv *jEnv, jobject jobj, jlong jniContextHandle) {
+   long maxLocalMemSize = -1;
+
+   try {   
+      JNIContext* jniContext = JNIContext::getJNIContext(jniContextHandle);
+      if (jniContext == NULL){
+         throwAparapiJNIRuntimeException(jEnv, "Failed to obtain JNI context from handle");
+         throw JNIException("getJNIContext()");
+      }
+
+      int length = queryKernelWorkGroupInfo(jEnv, jniContext, CL_KERNEL_LOCAL_MEM_SIZE, &maxLocalMemSize);
+      if (length != 1) {
+         throwAparapiJNIRuntimeException(jEnv, "getKernelLocalMemSizeInUseJNI() invalid length" + std::to_string(length));
+         throw JNIException("queryKernelWorkGroupInfo() invalid length: " + length);
+      }
+      
+      return (jlong)maxLocalMemSize;
+   } catch (JNIException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   } catch (CLException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   }
+   
+   //This value will never be returned, because a JNI exception is on its way
+   return 0; 
+}
+
+JNI_JAVA(jint, KernelRunnerJNI, getKernelPreferredWorkGroupSizeMultipleJNI)
+      (JNIEnv *jEnv, jobject jobj, jlong jniContextHandle) {
+   long preferredWorkGroupSize[3];
+
+   try {   
+      JNIContext* jniContext = JNIContext::getJNIContext(jniContextHandle);
+      if (jniContext == NULL){
+         throwAparapiJNIRuntimeException(jEnv, "Failed to obtain JNI context from handle");
+         throw JNIException("getJNIContext()");
+      }
+
+      int length = queryKernelWorkGroupInfo(jEnv, jniContext, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, preferredWorkGroupSize);
+      if (length != 1) {
+         throwAparapiJNIRuntimeException(jEnv, "getKernelPreferredWorkGroupSizeMultipleJNI() invalid length" + std::to_string(length));
+         throw JNIException("queryKernelWorkGroupInfo() invalid length: " + length);
+      }
+   
+      return (jint)preferredWorkGroupSize[0];
+   } catch (JNIException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   } catch (CLException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   }
+   
+   //This value will never be returned, because a JNI exception is on its way
+   return 0;
+}
+
+JNI_JAVA(jint, KernelRunnerJNI, getKernelMaxWorkGroupSizeJNI)
+      (JNIEnv *jEnv, jobject jobj, jlong jniContextHandle) {
+   long maxWorkGroupSize[3];
+
+   try {   
+      JNIContext* jniContext = JNIContext::getJNIContext(jniContextHandle);
+      if (jniContext == NULL){
+         throwAparapiJNIRuntimeException(jEnv, "Failed to obtain JNI context from handle");
+         throw JNIException("getJNIContext()");
+      }
+   
+      int length = queryKernelWorkGroupInfo(jEnv, jniContext, CL_KERNEL_WORK_GROUP_SIZE, maxWorkGroupSize);
+      if (length != 1) {
+         throwAparapiJNIRuntimeException(jEnv, "getKernelMaxWorkGroupSizeJNI() invalid length" + std::to_string(length));
+         throw JNIException("queryKernelWorkGroupInfo() invalid length: " + length);
+      }
+   
+      return (jint)maxWorkGroupSize[0];
+   } catch (JNIException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   } catch (CLException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   }
+   
+   //This value will never be returned, because a JNI exception is on its way
+   return 0;
+}
+
+JNI_JAVA(jintArray, KernelRunnerJNI, getKernelCompileWorkGroupSizeJNI)
+   (JNIEnv *jEnv, jobject jobj, jlong jniContextHandle) {
+   long compileWorkGroupSize[3];
+   
+   try {
+      JNIContext* jniContext = JNIContext::getJNIContext(jniContextHandle);
+      if (jniContext == NULL){
+         throwAparapiJNIRuntimeException(jEnv, "Failed to obtain JNI context from handle");
+         throw JNIException("getJNIContext()");
+      }
+
+      int length = queryKernelWorkGroupInfo(jEnv, jniContext, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, compileWorkGroupSize);
+      if (length == 0) {
+         throwAparapiJNIRuntimeException(jEnv, "getKernelCompileWorkGroupSizeJNI() invalid length: " + std::to_string(length));
+         throw JNIException("queryKernelWorkGroupInfo() invalid length: " + length);
+      } 
+      
+      jintArray jArr = jEnv->NewIntArray(length);
+      if (jArr == NULL) {
+         throwAparapiJNIRuntimeException(jEnv, "Failed to create Java integer array - NewIntArray()");
+         throw JNIException("Failed to create Java integer array - NewIntArray()");
+      }
+         
+      int arr[3];
+      for (int i = 0; i < length; i++) {
+         arr[i] = (jint)compileWorkGroupSize[i];
+      }
+   
+      jEnv->SetIntArrayRegion(jArr, (jsize)0, (jsize)length, arr);
+   
+      return jArr;
+   } catch (JNIException &ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   } catch (CLException& ex) {
+      //Log or ignore on puropose, as a JNI exception is on its way
+   }
+
+   //This value will never be returned, because a JNI exception is on its way
+   return NULL;
+}
+
+/**
+ * queries OpenCL about a compiled Kernel that is intended to run on a specific device
+ *
+ * @param jniContext the context with the arguments
+ * @param queryParameter the openCL parameter that is to be queried
+ * @param result a reference to an array of long with size 3 of the result values
+ * @return the number of entries with valid data in the array, 0 if there was an error
+ *
+ * @throws CLException
+ */
+int queryKernelWorkGroupInfo(JNIEnv *jEnv, JNIContext* jniContext, cl_kernel_work_group_info queryParameter, long *result) {
+   size_t queryResult[3];
+   cl_ulong queryResultULong;
+   
+   size_t returnedSize = 0;
+   void *voidQueryResult;
+   size_t voidQuerySize;
+   size_t unitSize;
+   
+   int resultLength = 0;
+   
+   switch (queryParameter) {
+   case CL_KERNEL_WORK_GROUP_SIZE:
+      voidQueryResult = (void *)queryResult;
+      voidQuerySize = sizeof(size_t);
+      unitSize = sizeof(size_t);
+      break;
+   case CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE:
+      voidQueryResult = (void *)queryResult;
+      voidQuerySize = sizeof(size_t);
+      unitSize = sizeof(size_t);
+      break;   
+   case CL_KERNEL_LOCAL_MEM_SIZE:
+      voidQueryResult = (void *)&queryResultULong;
+      voidQuerySize = sizeof(queryResultULong);
+      unitSize = sizeof(queryResultULong);
+      break;
+   case CL_KERNEL_PRIVATE_MEM_SIZE:
+      voidQueryResult = (void *)&queryResultULong;
+      voidQuerySize = sizeof(queryResultULong);
+      unitSize = sizeof(queryResultULong);
+      break;
+   default:
+      voidQueryResult = (void *)queryResult;
+      voidQuerySize = sizeof(queryResult);
+      unitSize = sizeof(size_t);
+      break;
+   }
+   
+   cl_int status = clGetKernelWorkGroupInfo(jniContext->kernel, (cl_device_id)jniContext->deviceId, queryParameter,
+                                            voidQuerySize, voidQueryResult, &returnedSize); 
+   if (status != CL_SUCCESS) {
+      if (jEnv != NULL) {
+         throwAparapiJNIRuntimeException(jEnv, "clGetKernelWorkGroupInfo() failed with error: " + std::string(CLHelper::errString(status)));
+      }
+      throw CLException(status, "clGetKernelWorkGroupInfo()");
+   }
+   
+   switch (queryParameter) {
+   case CL_KERNEL_PRIVATE_MEM_SIZE:
+      resultLength = 1;
+      *result = (long)queryResultULong;
+      break;
+   case CL_KERNEL_LOCAL_MEM_SIZE:
+      resultLength = 1;
+      *result = (long)queryResultULong;
+      break;
+   default:
+      resultLength = returnedSize / unitSize;
+      
+      for (int i = 0; i < resultLength; i++) {
+         result[i] = (long)queryResult[i];
+      }
+      break;
+   }
+   
+   return resultLength;
+}
+
 /**
  * enqueus the current kernel to run on opencl
  *
@@ -878,6 +1111,24 @@ void enqueueKernel(JNIContext* jniContext, Range& range, int passes, int argPos,
 
    jbyte* kernelInBytes = jniContext->runKernelInBytes;
    int* kernelInBytesAsInts = reinterpret_cast<int*>(kernelInBytes);
+
+
+   //Enforce validation of local work group size as some OpenCL vendor implementations don't do it
+   long maxKernelWorkGroupSize = 0;
+   int queryResults = queryKernelWorkGroupInfo(NULL, jniContext, CL_KERNEL_WORK_GROUP_SIZE, &maxKernelWorkGroupSize);
+   if (queryResults != 1) {
+      throw JNIException("Failed to retrieve MAX Kernel WorkGroup size: got " + std::to_string(queryResults) + " values instead of 1");
+   }
+
+   int targetWorkGroupSize = 1;
+   for (int i = 0; i < range.dims; i++) {
+      targetWorkGroupSize *= range.localDims[i];
+   }
+   
+   if (targetWorkGroupSize > maxKernelWorkGroupSize) {
+      throw JNIException("Kernel overall local size: " + std::to_string(targetWorkGroupSize) + 
+                        " exceeds maximum kernel allowed local size of: " + std::to_string(maxKernelWorkGroupSize));
+   }
 
    cl_int status = CL_SUCCESS;
    for (int passid=0; passid < passes; passid++) {
@@ -1219,7 +1470,11 @@ JNI_JAVA(jint, KernelRunnerJNI, runKernelJNI)
          jniContext->unpinAll(jenv);
          return cle.status();
       }
-
+      catch(JNIException& jnie) {
+         jnie.printError();
+         jniContext->unpinAll(jenv);
+         return -1;
+      }
 
 
 

@@ -1,4 +1,5 @@
 #!/bin/sh
+rm -rf .libs64 .libs32
 make clean
 ./prepare.sh
 libtoolize
