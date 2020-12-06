@@ -107,5 +107,6 @@ void writeProfile(JNIEnv* jenv, JNIContext* jniContext);
 
 KernelArg* getArgForBuffer(JNIEnv* jenv, JNIContext* jniContext, jobject buffer);
 
+int queryKernelWorkGroupInfo(JNIEnv *jEnv, JNIContext* jniContext, cl_kernel_work_group_info queryParameter, long *result);
 
 #endif // APARAPI_H
