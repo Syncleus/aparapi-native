@@ -12,7 +12,7 @@ automake --add-missing
 make
 ```
 
-Alternatively you can do the linux compile via a Docker container by issuing the following command (equivelant to the above)
+Alternatively you can do the Linux and Windows compile via a Docker container by issuing the following command (equivelant to the above)
 
 ```
 UID=${UID} GID=${GID} docker-compose up
@@ -26,8 +26,20 @@ Sometimes you need to add additional include directories to specify the location
 
 Shared library in `.libs/libaparapi.dynlib` for osx and `.libs/libaparapi.so` for linux.
 
-To prepare a 32bit version on a 64bit Linux system simply run configure as:
-./configure --build=i686-pc-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32"
+To prepare a 32bit x86 version on a 64bit x86_64 Linux system simply run configure as:
+`./configure --host=i686-pc-linux-gnu` 
+
+or, just call the script:
+
+`./build.sh`
+
+and it will generate both for Linux 64-bit x86_64 and Linux 32-bit x86.
+
+- It is also possible to cross-compile for armhf and aarch64 on Linux 86_64, using the script:
+`./buildARMLinux.sh` provided all the dependencies are installed and the `libOpenCL.so` file is extracted from the target
+platform and placed in the correct build directory, according to `configure.ac`
+
+
 
 # OSX
 
@@ -41,7 +53,39 @@ export JAVA_HOME=$(/usr/libexec/java_home)
 
 # Windows
 
-So far we have only been able to compile the windows binary using Microsoft Visual Studios 2017.
+- The currently tested way of cross-building the Windows binary is with MingW, there is the `buildMingW.sh` 
+script which will do all the needed steps, provided MingW GCC compilers are installed in the system.
+
+The DLLs will be at `.libs32/win` for Windows 32-bit and `.libs64/win` for Windows 64-bit.
+
+However in order to compile Aparapi native library the `OpenCL.dll` file must be prepared for linking and 
+must be placed at the proper directory depending on the architecture 32 or 64-bits. The OpenCL.dll can be 
+extracted from a Windows box with the GPU drivers already installed or from the driver package itself.
+Normally the file will be located, in a Windows installation, at: `%windir%\System32\OpenCL.dll`.
+
+- To extract the interface library please use the `gendef` tool from `mingw-w64-tools` package on Ubuntu 
+and probably Debian based distributions.
+
+- The interface library is extracted for x86_64 (64 bits) with:
+
+`gendef OpenCL.dll`
+
+and then doing:
+
+`x86_64-w64-mingw32-dlltool -d OpenCL.def -l libOpenCL.a`
+
+- To extract for x86 (32 bits), do:
+
+`gendef OpenCL.dll`
+
+and then doing:
+
+`x86_64-w64-mingw32-dlltool -k -d OpenCL.def -l libOpenCL.a`
+
+- There is the alternative to compile the windows binary using Microsoft Visual Studio
+2017, but it is no longer being used.
+
+To build with Microsoft Visual Studio, you can try:
 
 First open Git Bash and go to the project directory, make sure the project is up to date (git pull) and make sure the java submodule is updated (latest master).
 
