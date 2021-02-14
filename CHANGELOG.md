@@ -3,6 +3,7 @@
 ## 1.4.3
 
 * Improve Aparapi native to enforce Kernel and Device max work group size limitations and provide query functions for clGetKernelWorkGroupInfo(...)
+* Updated Docker and build configurations to use new image for cross-building Aparapi native for multiple platforms
 
 ## 1.4.2
 
