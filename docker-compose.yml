@@ -1,8 +1,8 @@
 version: '3'
 services:
-  aparapi_native_windows_builder:
-    container_name: aparapi_native_builder-worker
-    image: 'aparapi/aparapi-native-builder-image-worker:latest'
+  aparapi-native-builder:
+    container_name: aparapi_native_builder
+    image: 'aparapi/aparapi-native-builder'
     build:
       context: .
     user: "$UID:$GID"

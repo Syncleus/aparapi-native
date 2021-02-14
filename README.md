@@ -15,7 +15,7 @@ make
 Alternatively you can do the Linux and Windows compile via a Docker container by issuing the following command (equivelant to the above)
 
 ```
-UID=${UID} GID=${GID} docker-compose up
+UID=${UID} GID=${GID} docker-compose run --rm aparapi-native-builder
 ```
 
 Sometimes you need to add additional include directories to specify the location of the java JNI headers for your jdk. To do this add the following to your call of the configure script:
@@ -96,3 +96,10 @@ Open the project from MS Visual Studios, specifically the "Aparapi.sln" project 
 From the drop down at the top select x64 or Win32 depending on which version you wish to compile, then build the solution.
 
 The DLL file will be in "Release/x64" for 64-bit or "Release" for 32-bit depending on the version you compile
+
+# Building the aparapi-native-builder docker image
+
+```
+UID=${UID} GID=${GID} docker-compose build
+UID=${UID} GID=${GID} docker-compose push
+```
