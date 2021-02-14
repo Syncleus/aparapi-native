@@ -1,15 +1,19 @@
 #!/bin/sh
-rm -rf .libs64 .libs32
+echo Aparapi Linux x86_64 compilation started...
+rm -rf .libs64/linux .libs32/linux
 make clean
 ./prepare.sh
 libtoolize
 aclocal
 autoconf
 automake --add-missing
-./configure
+./configure 
 make
-mv .libs .libs64
+mkdir -p .libs64
+mv .libs .libs64/linux
+echo Aparapi Linux x86 compilation started...
 make clean
-./configure --build=i686-pc-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32"
+./configure --host=i686-pc-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32"
 make
-mv .libs .libs32
+mkdir -p .libs32
+mv .libs .libs32/linux
