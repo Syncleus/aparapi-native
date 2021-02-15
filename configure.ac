@@ -1,9 +1,17 @@
-AC_INIT([libaparapi], [1.4.2], [syncleus@syncleus.com])
+AC_INIT([libaparapi], [1.4.3], [syncleus@syncleus.com])
 AC_ENABLE_SHARED(yes)
 AC_ENABLE_STATIC(no)
 AC_CONFIG_MACRO_DIRS([m4])
 LT_INIT
 AM_INIT_AUTOMAKE([subdir-objects])
+
+case $host_os in
+  darwin* )
+        CC=${CC-/usr/osxcross/bin/x86_64-apple-darwin14-clang}
+        CXX=${CXX-/usr/osxcross/bin/x86_64-apple-darwin14-clang++}
+        ;;
+esac
+
 AC_PROG_CXX
 AC_CONFIG_FILES([Makefile])
 AC_CANONICAL_HOST
