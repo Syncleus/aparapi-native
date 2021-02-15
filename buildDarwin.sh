@@ -1,7 +1,6 @@
 #!/bin/sh
 echo "Aparapi Darwin (OSX) x86_64 compilation started..."
 
-export PATH=/usr/osxcross/bin:/usr/osxcross:$PATH
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 rm -rf .libs64/linux .libs32/linux
 make clean

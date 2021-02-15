@@ -7,8 +7,8 @@ AM_INIT_AUTOMAKE([subdir-objects])
 
 case $host_os in
   darwin* )
-        CC=${CC-/usr/osxcross/bin/x86_64-apple-darwin14-clang}
-        CXX=${CXX-/usr/osxcross/bin/x86_64-apple-darwin14-clang++}
+        CC=${CC-/usr/osxcross/bin/x86_64-apple-darwin20.2-clang}
+        CXX=${CXX-/usr/osxcross/bin/x86_64-apple-darwin20.2-clang++}
         ;;
 esac
 
@@ -44,7 +44,7 @@ AC_SUBST(HOST_ARCH)
 case $host_os in
   darwin* )
         AC_LDFLAGS="-framework OpenCL -version-info 5:3:4"
-	AC_CPPFLAGS="-Iinclude -I/opt/AMDAPP/SDK/include -Isrc/cpp -Isrc/cpp/runKernel -Isrc/cpp/invoke -I${JAVA_HOME}/include/darwin -I${JAVA_HOME}/include -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/ -DCL_USE_DEPRECATED_OPENCL_1_1_APIS"
+	AC_CPPFLAGS="-Iinclude -I/opt/AMDAPP/SDK/include -Isrc/cpp -Isrc/cpp/runKernel -Isrc/cpp/invoke -I/usr/src/khronos-OpenCL-headers -I${JAVA_HOME}/include/darwin -I${JAVA_HOME}/include -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/ -DCL_USE_DEPRECATED_OPENCL_1_1_APIS"
         ;;
   mingw*)
         case $HOST_CPU_BITS in
