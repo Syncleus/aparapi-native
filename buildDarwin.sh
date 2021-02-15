@@ -14,4 +14,4 @@ automake --add-missing
 ./configure --host=x86_64-apple-darwin
 make
 mkdir -p .libs64
-mv .libs .libs64/linux
+mv .libs .libs64/darwin
