@@ -4,6 +4,7 @@
 
 * Improve Aparapi native to enforce Kernel and Device max work group size limitations and provide query functions for clGetKernelWorkGroupInfo(...)
 * Updated Docker and build configurations to use new image for cross-building Aparapi native for multiple platforms
+* Allow Aparapi native to run on untested OpenCL Platform versions, just issuing a WARNING message
 
 ## 1.4.2
 
